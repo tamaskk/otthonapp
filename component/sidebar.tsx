@@ -12,7 +12,7 @@ const Sidebar = () => {
   return (
     <div className="relative z-50">
       <MenuIcon
-        className="fixed top-5 right-5 text-white cursor-pointer z-50"
+        className="fixed top-5 right-5 text-black cursor-pointer z-50"
         onClick={() => setMenuOpen(!menuOpen)}
       />
       <div
