@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import SidebarItems from "./SidebarItems";
 
 const Sidebar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [financeOpen, setFinanceOpen] = useState(false);
   const [trainingOpen, setTrainingOpen] = useState(false);
+  const [recipeOpen, setRecipeOpen] = useState(false);
 
   return (
     <div className="relative z-50">
@@ -22,51 +23,33 @@ const Sidebar = () => {
         <div className="flex flex-col py-10 h-full text-black">
           <h2 className="text-2xl font-bold text-center mb-6">Otthon App</h2>
           <ul className="space-y-4 px-6">
-            <li className="cursor-pointer">Bevásárló lista</li>
-
-            {/* Finance with Dropdown */}
-            <li>
-              <div
-                className="flex justify-between items-center cursor-pointer"
-                onClick={() => setFinanceOpen(!financeOpen)}
-              >
-                <span>Finance</span>
-                {financeOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </div>
-              {financeOpen && (
-                <ul className="ml-4 mt-2 space-y-2 text-sm text-gray-700">
-                  <li className="cursor-pointer">Expenses</li>
-                  <li className="cursor-pointer">Income</li>
-                  <li className="cursor-pointer">Budget</li>
-                </ul>
-              )}
-            </li>
-
-            {/* Training with Dropdown */}
-            <li>
-              <div
-                className="flex justify-between items-center cursor-pointer"
-                onClick={() => setTrainingOpen(!trainingOpen)}
-              >
-                <span>Training</span>
-                <ExpandLessIcon
-                  className={`transform transition-transform duration-1000 ${
-                    !trainingOpen ? "rotate-180" : "rotate-0"
-                  }`}
-                />
-              </div>
-              <ul
-                className={`ml-4 mt-2 space-y-2 text-sm ${
-                  !trainingOpen ? "h-0" : "h-20"
-                } text-gray-700 overflow-hidden transition-all duration-300`}
-              >
-                <li className="cursor-pointer">Workout Plans</li>
-                <li className="cursor-pointer">Progress</li>
-                <li className="cursor-pointer">Goals</li>
-              </ul>
-            </li>
-
-            <li className="cursor-pointer">Contact</li>
+            <SidebarItems items={[]} mainUrl="/" name="Bevásárló lista" />
+            <SidebarItems
+              items={[
+                { name: "Edzés hozzáadása", url: "/add-workout" },
+                { name: "Edzésterv létrehozása", url: "/create-workout-plan" },
+                { name: "Edzésterv elkezdése", url: "/start-workout-plan" },
+                { name: "Előző edzések", url: "/previous-workouts" },
+                { name: "Beállítások", url: "/workout-settings" },
+              ]}
+              name="Edzés"
+              openHandler={() => setTrainingOpen(!trainingOpen)}
+              state={trainingOpen}
+            />
+            <SidebarItems
+              items={[
+                { name: "Minden recept", url: "/all-recipes" },
+                { name: "Recept hozzáadása", url: "/add-recipes" },
+                { name: "Receptek szerkeztése", url: "/edit-recipes" },
+                { name: "Recept beállítások", url: "/recipe-settings" },
+              ]}
+              name="Receptek"
+              openHandler={() => setRecipeOpen(!recipeOpen)}
+              state={recipeOpen}
+            />
+            <SidebarItems items={[]} mainUrl="/finance" name="Pénzügyek" />
+            <SidebarItems items={[]} mainUrl="/home" name="Otthon" />
+            <SidebarItems items={[]} mainUrl="/tv-list" name="TV Lista" />
           </ul>
         </div>
       </div>
