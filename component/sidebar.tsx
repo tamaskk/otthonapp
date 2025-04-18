@@ -10,7 +10,7 @@ const Sidebar = () => {
   const [recipeOpen, setRecipeOpen] = useState(false);
 
   return (
-    <div className="relative z-50">
+    <div className="relative z-[100000000000]">
       <MenuIcon
         className="fixed top-5 right-5 text-black cursor-pointer z-50"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -50,6 +50,7 @@ const Sidebar = () => {
             <SidebarItems items={[]} mainUrl="/finance" name="Pénzügyek" />
             <SidebarItems items={[]} mainUrl="/home" name="Otthon" />
             <SidebarItems items={[]} mainUrl="/tv-list" name="TV Lista" />
+            <SidebarItems items={[]} mainUrl="/notes" name="Jegyzetek" />
           </ul>
         </div>
       </div>
