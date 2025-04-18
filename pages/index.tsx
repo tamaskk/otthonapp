@@ -2,18 +2,28 @@ import Sidebar from "@/component/sidebar";
 import React, { useEffect, useRef, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from '@mui/icons-material/Check';
+import { useNotification } from "@rc-component/notification";
+import motion from "@/lib/notion";
+import { Bounce, ToastContainer, toast } from 'react-toastify';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+interface ShoppingListItem {
+  _id: string;
+  name: string;
+  quantity: number;
+  quantityUnit: string;
+  shop: string;
+  price: number;
+  note: string;
+  done: boolean;
+}
 
 const index = () => {
+  const [notice, contextHolder] = useNotification({ motion, showProgress: true });
+
   const ref = useRef(true);
   const [shippingList, setShippingList] = useState<
-    {
-      _id: string;
-      name: string;
-      quantity: number;
-      shop: string;
-      price: number;
-      note: string;
-    }[]
+    ShoppingListItem[]
   >([]);
   // Store the original unfiltered list
   const [originalList, setOriginalList] = useState<
@@ -73,17 +83,74 @@ const index = () => {
     "yd",
   ];
   const [addItemModal, setAddItemModal] = useState(false);
-  const [newItem, setNewItem] = useState({
+  const [newItem, setNewItem] = useState<ShoppingListItem>({
     name: "",
     quantity: 1,
     quantityUnit: "db",
     shop: "",
     price: 0,
     note: "",
+    _id: "",
+    done: false,
   });
   // Search states
   const [searchName, setSearchName] = useState("");
   const [selectedShop, setSelectedShop] = useState("");
+
+  const showNotification = (
+    content: string,
+    type: "success" | "error" | "info" | "warning"
+  ) => {
+    if (type === "error") {
+      toast.error(content, {
+        position: "bottom-left",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } else if (type === "info") {
+      toast.info(content, {
+        position: "bottom-left",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } else if (type === "warning") {
+      toast.warn(content, {
+        position: "bottom-left",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } else if (type === "success") {
+    toast.success(content, {
+      position: "bottom-left",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+      });
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,7 +172,7 @@ const index = () => {
 
   // Filter the list whenever searchName or selectedShop changes
   useEffect(() => {
-    let filteredList = [...originalList];
+    let filteredList: any[] = [...originalList];
 
     // Filter by shop
     if (selectedShop) {
@@ -124,15 +191,73 @@ const index = () => {
     setShippingList(filteredList);
   }, [searchName, selectedShop, originalList]);
 
-  const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/shopping-list/${id}`, {
+  const deleteAllDoneItems = async () => {
+    const confirmDelete = window.confirm(
+      "Biztosan törölni szeretnéd az összes késznek jelölt terméket a bevásárlólistádról?"
+    );
+
+    if (!confirmDelete) return;
+
+    showNotification("Törlés folyamatban...", "info");
+
+    const res = await fetch("/api/shopping-list", {
       method: "DELETE",
     });
+
+    if (res.ok) {
+      const updatedList = shippingList.filter((item) => !item.done);
+      setShippingList(updatedList);
+      setOriginalList(updatedList); // Update original list too
+      showNotification("Sikeresen törölted az elemet!", "success");
+    } else {
+      const errorData = await res.json();
+      showNotification(errorData.message, "error");
+    }
+  }
+
+  const setDone = async (id: string) => {
+
+    showNotification("Késznek jelölés folyamatban...", "info");
+
+    const res = await fetch(`/api/shopping-list?id=${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (res.ok) {
+      const findItem = shippingList.find((item) => item._id === id);
+      const updatedList = shippingList.map((item) =>
+        item._id === id ? { ...item, done: !findItem?.done } : item
+      );
+      setShippingList(updatedList);
+      setOriginalList(updatedList); // Update original list too
+      showNotification("Sikeresen késznek jelölted az elemet!", "success");
+    } else {
+      console.error("Failed to mark item as done");
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+
+    const confirmDelete = window.confirm(
+      "Biztosan törölni szeretnéd ezt az elemet a bevásárlólistádról?"
+    );
+
+    if (!confirmDelete) return;
+
+    showNotification("Törlés folyamatban...", "info");
+
+    const res = await fetch(`/api/shopping-list?id=${id}`, {
+      method: "DELETE",
+    });    
 
     if (res.ok) {
       const updatedList = shippingList.filter((item) => item._id !== id);
       setShippingList(updatedList);
       setOriginalList(updatedList); // Update original list too
+      showNotification("Sikeresen törölted az elemet!", "success");
     } else {
       console.error("Failed to delete item");
     }
@@ -143,6 +268,8 @@ const index = () => {
       alert("Kérlek töltsd ki az összes mezőt!");
       return;
     }
+
+    showNotification("Hozzáadás folyamatban...", "info");
 
     const res = await fetch("/api/shopping-list", {
       method: "POST",
@@ -156,10 +283,12 @@ const index = () => {
     setShippingList([...shippingList, data]);
     setOriginalList([...originalList, data]); // Update original list
     setAddItemModal(false);
+    showNotification("Sikeresen hozzáadtad az elemet!", "success");
   };
 
   return (
     <div className="bg-white max-h-screen h-screen overflow-y-auto relative">
+      <ToastContainer />
       <Sidebar />
       <AddIcon
         className="absolute top-5 left-5 text-black cursor-pointer hover:scale-105 transition-transform duration-200 ease-in-out"
@@ -191,16 +320,32 @@ const index = () => {
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
           />
+          <div>
+            <button
+              onClick={() => {
+                deleteAllDoneItems();
+              }}
+              className="w-full mt-5 p-2 bg-gray-300 shadow-md text-black rounded-md hover:bg-gray-400 transition duration-200"
+            >
+              Késznek jelölt termékek törlése
+            </button>
+          </div>
         </div>
         <div className="w-full flex flex-col items-center justify-start">
           {shippingList.map((item, index) => (
             <div
               key={index}
-              className="relative bg-white border border-gray-200 p-5 rounded-xl shadow-sm text-gray-800 mt-4 w-[90%] max-w-xl transition hover:shadow-md"
+              className={`relative ${item.done ? "bg-green-100" : "bg-white"} border border-gray-200 p-5 rounded-xl shadow-sm text-gray-800 mt-4 w-[90%] max-w-xl transition hover:shadow-md`}
             >
               <button
                 onClick={() => handleDelete(item._id)}
-                className="absolute top-3 right-3 text-green-600 hover:text-green-800"
+                className="absolute top-3 right-3 text-red-600 hover:text-red-800"
+              >
+                <DeleteIcon className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => setDone(item._id)}
+                className="absolute top-3 right-12 text-green-600 hover:text-green-800"
               >
                 <CheckIcon className="w-6 h-6" />
               </button>
