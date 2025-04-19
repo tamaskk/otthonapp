@@ -40,13 +40,48 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     } else if (req.method === 'DELETE') {
 
     } else if (req.method === 'PATCH') {
-        
+        try {
+
+            const id = req.query.id;
+            const body = req.body;
+            
+            const { name, types, difficulties, url, ingredients, steps, notes } = body;
+            
+            if (!name) {
+                return res.status(422).json({ message: 'Name and shop are required' });
+            }
+            
+            const updatedItem = {
+                name,
+                types: types || [],
+                difficulties: difficulties || [],
+                url: url || '',
+                ingredients: ingredients || [],
+                steps: steps || [],
+                notes: notes || [],
+            };
+            
+            const result = await collection.updateOne(
+                { _id: new ObjectId(id as string) },
+                { $set: updatedItem }
+                );
+                
+                if (!result.acknowledged) {
+                    return res.status(422).json({ message: result});
+                }
+                
+                return res.status(200).json({ message: 'Item updated successfully' });
+            } catch (error) {
+                console.error('Error updating item:', error);
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+
     } else {
         res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PATCH']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
     
-    client.close();
+    await client.close();
 }
 
 export default handler;

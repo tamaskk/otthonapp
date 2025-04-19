@@ -56,6 +56,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             }
         }
     } else if (req.method === 'PATCH') {
+
         const { id } = req.query;
       
         if (!id || typeof id !== 'string') {
@@ -81,8 +82,24 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         } else {
           res.status(500).json({ message: 'Failed to update item' });
         }
-      } else {
-        res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PATCH']);
+    
+    
+    } else if (req.method === 'PUT') {
+        const items = req.body;
+
+        if (!Array.isArray(items.ingredients) || items.ingredients.length === 0) {
+            return res.status(422).json({ message: 'Items array is required' });
+        }
+
+        const insertManyItems = await collection.insertMany(items.ingredients);
+
+        if (insertManyItems.acknowledged) {
+            res.status(201).json({ message: 'Items added successfully', items });
+        } else {
+            res.status(500).json({ message: 'Failed to add items' });
+        }
+    } else {
+        res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PATCH', 'PUT']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
     
