@@ -1,12 +1,12 @@
 // pages/login.tsx
-import Head from 'next/head';
-import { useState } from 'react';
+import Head from "next/head";
+import { useState } from "react";
 
 export default function LoginPage() {
-    const [auth, setAuth] = useState({
-        email: '',
-        password: '',
-    })
+  const [auth, setAuth] = useState({
+    email: "",
+    password: "",
+  });
 
   return (
     <>
@@ -23,7 +23,10 @@ export default function LoginPage() {
           <form className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-md">
             <div className="rounded-md space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email address
                 </label>
                 <input
@@ -32,13 +35,16 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
-                    onChange={(e) => setAuth({ ...auth, email: e.target.value })}
+                  onChange={(e) => setAuth({ ...auth, email: e.target.value })}
                   className="appearance-none relative block w-full px-4 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#053BA8] focus:border-[#053BA8]"
                   placeholder="you@example.com"
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Password
                 </label>
                 <input
@@ -47,7 +53,9 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
-                    onChange={(e) => setAuth({ ...auth, password: e.target.value })}
+                  onChange={(e) =>
+                    setAuth({ ...auth, password: e.target.value })
+                  }
                   className="appearance-none relative block w-full px-4 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#053BA8] focus:border-[#053BA8]"
                   placeholder="••••••••"
                 />

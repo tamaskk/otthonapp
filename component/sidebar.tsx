@@ -26,6 +26,17 @@ const Sidebar = () => {
             <SidebarItems items={[]} mainUrl="/" name="Bevásárló lista" />
             <SidebarItems
               items={[
+                { name: "Minden recept", url: "/all-recipes" },
+                { name: "Recept hozzáadása", url: "/add-recipes" },
+                { name: "Receptek szerkeztése", url: "/edit-recipes" },
+                { name: "Recept beállítások", url: "/recipes-settings" },
+              ]}
+              name="Receptek"
+              openHandler={() => setRecipeOpen(!recipeOpen)}
+              state={recipeOpen}
+            />
+            <SidebarItems
+              items={[
                 { name: "Edzés hozzáadása", url: "/add-workout" },
                 { name: "Edzésterv létrehozása", url: "/create-workout-plan" },
                 { name: "Edzésterv elkezdése", url: "/start-workout-plan" },
@@ -35,17 +46,6 @@ const Sidebar = () => {
               name="Edzés"
               openHandler={() => setTrainingOpen(!trainingOpen)}
               state={trainingOpen}
-            />
-            <SidebarItems
-              items={[
-                { name: "Minden recept", url: "/all-recipes" },
-                { name: "Recept hozzáadása", url: "/add-recipes" },
-                { name: "Receptek szerkeztése", url: "/edit-recipes" },
-                { name: "Recept beállítások", url: "/recipe-settings" },
-              ]}
-              name="Receptek"
-              openHandler={() => setRecipeOpen(!recipeOpen)}
-              state={recipeOpen}
             />
             <SidebarItems items={[]} mainUrl="/finance" name="Pénzügyek" />
             <SidebarItems items={[]} mainUrl="/home" name="Otthon" />
