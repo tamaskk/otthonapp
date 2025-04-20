@@ -434,11 +434,11 @@ const Movies = () => {
         </label>
         <input
           type="number"
-          value={pickedSavedMovie?.currentEpisode || 0}
+          value={pickedSavedMovie?.currentEpisode}
           onChange={(e) =>
             setPickedSavedMovie((prev: any) => ({
               ...prev,
-              currentEpisode: parseInt(e.target.value) || 0,
+              currentEpisode: parseInt(e.target.value),
             }))
           }
           className="w-full p-2 border border-gray-300 rounded-md"
@@ -448,11 +448,11 @@ const Movies = () => {
         </label>
         <input
           type="number"
-          value={pickedSavedMovie?.currentSeason || 0}
+          value={pickedSavedMovie?.currentSeason}
           onChange={(e) =>
             setPickedSavedMovie((prev: any) => ({
               ...prev,
-              currentSeason: parseInt(e.target.value) || 0,
+              currentSeason: parseInt(e.target.value),
             }))
           }
           className="w-full p-2 border border-gray-300 rounded-md"
