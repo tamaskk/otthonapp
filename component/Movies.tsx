@@ -176,7 +176,7 @@ const saveProcess = async () => {
 }
 
   return (
-    <div className="p-4 max-w-6xl mx-auto text-white">
+    <div className="p-4 max-w-6xl mx-auto max-h-screen text-white">
       <h1 className="text-3xl font-bold text-center mb-6 text-black">
         Film és sorozat kereső
       </h1>
