@@ -12,7 +12,7 @@ enum FinanceType {
 }
 
 interface FinanceItem {
-  id: number;
+  _id: string;
   name: string;
   amount: number;
   type: FinanceType;
@@ -30,7 +30,7 @@ const Finance: React.FC = () => {
   const [searchType, setSearchType] = useState<FinanceType | "">("");
   const [finances, setFinances] = useState<FinanceItem[]>([]);
   const [name, setName] = useState<string>("");
-  const [isBlockOpen, setIsBlockOpen] = useState<boolean>(true);
+  const [isBlockOpen, setIsBlockOpen] = useState<boolean>(false);
 
   const transactionTypeHungarian = {
     [FinanceType.INCOME]: "Bevétel",
@@ -116,9 +116,9 @@ const Finance: React.FC = () => {
     fetchFinances();
   }, []);
 
-  const deleteFinance = async (id: number) => {
+  const deleteFinance = async (id: string) => {
     try {
-      const response = await fetch(`/api/finance/${id}`, {
+      const response = await fetch(`/api/finance?id=${id}`, {
         method: "DELETE",
       });
 
@@ -127,7 +127,7 @@ const Finance: React.FC = () => {
         return;
       }
 
-      setFinances(finances.filter((finance) => finance.id !== id));
+      setFinances(finances.filter((finance) => finance._id !== id));
       showNotification("Sikeresen törölve", "success");
     } catch (error) {
       showNotification("Hiba történt a törlés során", "error");
@@ -160,41 +160,56 @@ const Finance: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
           Pénzügyek
         </h1>
-
+        <div className="flex justify-center gap-4 mb-6">
+          <button
+            onClick={() => setState("add")}
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              state === "add"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Hozzáadás
+          </button>
+          <button
+            onClick={() => setState("search")}
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              state === "search"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Keresés
+          </button>
+          {!isBlockOpen && (
+            <button
+              onClick={() => setIsBlockOpen(!isBlockOpen)}
+              className="p-2 rounded-md font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+            >
+              {isBlockOpen ? "Bezárás" : "Nyitás"}
+            </button>
+          )}
+        </div>
         {/* Add/Search Block (Collapsible) */}
         {isBlockOpen && (
           <div>
             {/* Toggle Buttons */}
-            <div className="flex justify-center gap-4 mb-6">
-              <button
-                onClick={() => setState("add")}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  state === "add"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                Hozzáadás
-              </button>
-              <button
-                onClick={() => setState("search")}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  state === "search"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                Keresés
-              </button>
-            </div>
 
             {/* Form or Search */}
             <div className="bg-gray-100 p-6 rounded-md shadow-md text-black space-y-4 sticky top-0 z-10">
               {state === "add" ? (
-                <form onSubmit={saveFinance} className="space-y-4">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    Új tranzakció
-                  </h2>
+                <div onSubmit={saveFinance} className="space-y-4">
+                  <div className="flex flex-row items-center justify-between w-full">
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      Új tranzakció
+                    </h2>
+                    <button
+                      onClick={() => setIsBlockOpen(!isBlockOpen)}
+                      className="p-2 rounded-md font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                      {isBlockOpen ? "Bezárás" : "Nyitás"}
+                    </button>
+                  </div>
                   <input
                     type="text"
                     placeholder="Név"
@@ -261,12 +276,12 @@ const Finance: React.FC = () => {
                     </select>
                   )}
                   <button
-                    type="submit"
+                    onClick={saveFinance}
                     className="w-full p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                   >
                     Hozzáadás
                   </button>
-                </form>
+                </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex flex-row items-center justify-between">
@@ -276,7 +291,7 @@ const Finance: React.FC = () => {
                     <div className="flex justify-center">
                       <button
                         onClick={() => setIsBlockOpen(!isBlockOpen)}
-                        className="p-1 rounded-md font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                        className="p-2 rounded-md font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
                       >
                         {isBlockOpen ? "Bezárás" : "Nyitás"}
                       </button>
@@ -320,7 +335,7 @@ const Finance: React.FC = () => {
           ) : (
             filteredFinances.map((finance) => (
               <div
-                key={finance.id}
+                key={finance._id}
                 className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-center">
@@ -339,7 +354,7 @@ const Finance: React.FC = () => {
                       {transactionTypeHungarian[finance.type]}
                     </span>
                     <button
-                      onClick={() => deleteFinance(finance.id)}
+                      onClick={() => deleteFinance(finance._id)}
                       className="p-1 text-red-600 hover:text-red-800"
                       aria-label="Tranzakció törlése"
                     >

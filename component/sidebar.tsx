@@ -37,10 +37,12 @@ const Sidebar = () => {
             />
             <SidebarItems
               items={[
-                { name: "Edzés hozzáadása", url: "/add-workout" },
-                { name: "Edzésterv létrehozása", url: "/create-workout-plan" },
-                { name: "Edzésterv elkezdése", url: "/start-workout-plan" },
-                { name: "Előző edzések", url: "/previous-workouts" },
+                { name: "Edzés hozzáadása", url: "/add-exercise" },
+                { name: "Edzés beállítások", url: "/exercise-settings" },
+                { name: "Edzésterv létrehozása", url: "/add-workout" },
+                { name: "Edzésterv szerkesztése", url: "/edit-workout" },
+                { name: "Edzésterv elkezdése", url: "/start-workout" },
+                { name: "Edzésnapló", url: "/exercise-log" },
                 { name: "Beállítások", url: "/workout-settings" },
               ]}
               name="Edzés"
