@@ -38,7 +38,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const result = await collection.insertOne(newItem);
         res.status(201).json(result.acknowledged ? newItem : { message: 'Failed to add item' });
     } else if (req.method === 'DELETE') {
-
     } else if (req.method === 'PATCH') {
         try {
 
