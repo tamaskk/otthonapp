@@ -17,6 +17,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === 'GET') {
 
         const shoppingList = await collection.find({}).toArray();
+        await client.close();
 
         res.status(200).json(shoppingList);
         
@@ -35,6 +36,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             note: note || ''
         };
         const result = await collection.insertOne(newItem);
+    await client.close();
+
         res.status(201).json(result.acknowledged ? newItem : { message: 'Failed to add item' });
     } else if (req.method === 'DELETE') {
         const { id } = req.query;
@@ -50,8 +53,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
             const result = await collection.deleteOne({ _id: new ObjectId(id) });
             if (result.deletedCount === 1) {
+    await client.close();
+
                 res.status(200).json({ message: 'Item deleted successfully' });
             } else {
+    await client.close();
+
                 res.status(404).json({ message: 'Item not found' });
             }
         }
@@ -83,6 +90,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           res.status(500).json({ message: 'Failed to update item' });
         }
     
+    await client.close();
+
     
     } else if (req.method === 'PUT') {
         const items = req.body;
@@ -98,12 +107,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         } else {
             res.status(500).json({ message: 'Failed to add items' });
         }
+    await client.close();
+
     } else {
         res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PATCH', 'PUT']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
     
-    client.close();
+    await client.close();
 }
 
 export default handler;

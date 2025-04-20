@@ -10,7 +10,7 @@ import ShoppingList from "@/component/ShoppingList";
 
 const index = () => {
   return (
-    <div className="bg-white max-h-[100dvh] flex-1 h-full overflow-y-auto relative">
+    <div className="bg-white max-h-[100dvh] flex-1 h-screen overflow-y-auto relative">
       <ToastContainer />
       <Sidebar />
       <ShoppingList />

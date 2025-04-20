@@ -185,7 +185,7 @@ const TvList = () => {
   
 
   return (
-    <div className="bg-white max-h-screen h-screen overflow-y-auto relative">
+        <div className="bg-white max-h-[100dvh] flex-1 h-screen overflow-y-auto relative">
       <ToastContainer />
       <Sidebar />
       <TVList />

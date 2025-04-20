@@ -1,9 +1,221 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
-const ExerciseLogComponent = () => {
-  return (
-    <div>ExerciseLogComponent</div>
-  )
+interface SetProgress {
+  completed: boolean;
+  reps: number;
+  weight: number;
 }
 
-export default ExerciseLogComponent
+interface ExerciseProgress {
+  sets: SetProgress[];
+}
+
+interface ExerciseLog {
+  _id: string;
+  workoutId: string;
+  progress: {
+    [exerciseId: string]: ExerciseProgress;
+  };
+  dayOfExercise: string;
+  startTime: string;
+  endTime: string;
+}
+
+interface Workout {
+  _id: string;
+  name: string;
+}
+
+const ExerciseLogComponent = () => {
+  const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
+  const [workouts, setWorkouts] = useState<{ [key: string]: string }>({});
+  const [expandedLog, setExpandedLog] = useState<string | null>(null);
+
+  const fetchExerciseLogs = async () => {
+    try {
+      const response = await fetch('/api/exercise-log');
+      if (!response.ok) throw new Error('Failed to fetch exercise logs');
+      const data = await response.json();
+      setExerciseLogs(data);
+      console.log('Fetched exercise logs:', data);
+    } catch (error) {
+      console.error('Error fetching exercise logs:', error);
+    }
+  };
+
+  const fetchWorkouts = async (workoutIds: string[]) => {
+    try {
+      const uniqueIds = [...new Set(workoutIds)];
+      const promises = uniqueIds.map(async (id) => {
+        const response = await fetch(`/api/workout?id=${id}`);
+        if (!response.ok) throw new Error(`Failed to fetch workout ${id}`);
+        const data = await response.json();
+        return { id, name: data.name };
+      });
+      const results = await Promise.all(promises);
+      const workoutMap = results.reduce(
+        (acc, { id, name }) => ({ ...acc, [id]: name }),
+        {}
+      );
+      setWorkouts(workoutMap);
+      console.log('Fetched workouts:', workoutMap);
+    } catch (error) {
+      console.error('Error fetching workouts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchExerciseLogs();
+  }, []);
+
+  useEffect(() => {
+    if (exerciseLogs.length > 0) {
+      const workoutIds = exerciseLogs.map((log) => log.workoutId);
+      fetchWorkouts(workoutIds);
+    }
+  }, [exerciseLogs]);
+
+  const formatDateTime = (day: string, start: string, end: string) => {
+    const dayDate = new Date(day);
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    const dayFormatted = dayDate.toLocaleString('hu-HU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const startTime = startDate.toLocaleString('hu-HU', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const endTime = endDate.toLocaleString('hu-HU', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    return `${dayFormatted} ${startTime} - ${endTime}`;
+  };
+
+  const calculateDuration = (start: string, end: string) => {
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
+    const seconds = Math.floor((endTime - startTime) / 1000);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m
+      .toString()
+      .padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const calculateCompletion = (progress: ExerciseLog['progress']) => {
+    let completed = 0;
+    let total = 0;
+    Object.values(progress).forEach((exercise) => {
+      exercise.sets.forEach((set) => {
+        total += 1;
+        if (set.completed) completed += 1;
+      });
+    });
+    return { completed, total };
+  };
+
+  const toggleLog = (logId: string) => {
+    setExpandedLog(expandedLog === logId ? null : logId);
+  };
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      <h2 className="text-3xl font-bold text-gray-800 mb-6">Edzésnapló</h2>
+      {exerciseLogs.length === 0 ? (
+        <div className="text-center text-gray-500 text-lg">
+          Nincsenek edzésnaplók.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {exerciseLogs.map((log) => {
+            const { completed, total } = calculateCompletion(log.progress);
+            const isExpanded = expandedLog === log._id;
+            return (
+              <div
+                key={log._id}
+                className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow"
+              >
+                <div
+                  className="p-6 flex justify-between items-center cursor-pointer"
+                  onClick={() => toggleLog(log._id)}
+                >
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      {workouts[log.workoutId] || `Edzés (${log.workoutId})`}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {formatDateTime(log.dayOfExercise, log.startTime, log.endTime)}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Időtartam:</span>{' '}
+                      {calculateDuration(log.startTime, log.endTime)}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Teljesítve:</span>{' '}
+                      {completed} / {total} szett
+                    </p>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronUpIcon className="w-6 h-6 text-gray-500" />
+                  ) : (
+                    <ChevronDownIcon className="w-6 h-6 text-gray-500" />
+                  )}
+                </div>
+                {isExpanded && (
+                  <div className="border-t border-gray-200 p-6">
+                    <h4 className="text-lg font-medium text-gray-700 mb-3">
+                      Gyakorlatok előrehaladása
+                    </h4>
+                    {Object.entries(log.progress).map(([exerciseId, progress]) => (
+                      <div
+                        key={exerciseId}
+                        className="mb-4 p-4 bg-gray-50 rounded-lg"
+                      >
+                        <h5 className="text-base font-medium text-gray-800">
+                          Gyakorlat ID: {exerciseId}
+                        </h5>
+                        <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                          {progress.sets.map((set, index) => (
+                            <div
+                              key={index}
+                              className={`p-2 rounded-md text-sm ${
+                                set.completed
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              <p>
+                                <span className="font-medium">
+                                  Szett {index + 1}:
+                                </span>
+                              </p>
+                              <p>Ismétlések: {set.reps}</p>
+                              <p>Súly: {set.weight} kg</p>
+                              <p>
+                                {set.completed ? 'Befejezve' : 'Nem befejezve'}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ExerciseLogComponent;
