@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 enum ChannelType {
     Közszolgálati = 'Közszolgálati',
@@ -189,6 +189,15 @@ enum ChannelType {
     const [viewType, setViewType] = useState<'all' | 'type'>('type')
     const [searchTerm, setSearchTerm] = useState('')
     const [searchType, setSearchType] = useState<ChannelType | ''>('')
+
+
+    useEffect(() => {
+      fetch("/api/porthu?channels=2&channels=27") // TV2 és M4 Sport
+        .then(res => res.json())
+        .then(data => {
+          console.log("Műsor adatok:", data);
+        });
+    }, []);
   
     const filteredList = useMemo(() => {
       return list.filter((channel) => {
