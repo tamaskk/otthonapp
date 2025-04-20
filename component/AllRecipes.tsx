@@ -86,7 +86,7 @@ const AllRecipes: React.FC = () => {
     }, []);
 
   return (
-    <div className="bg-white min-h-screen p-6 flex flex-col items-center justify-start">
+    <div className="bg-white max-h-[100dvh] flex-1 h-full p-6 flex flex-col items-center justify-start">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
         Receptek
       </h1>

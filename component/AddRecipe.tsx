@@ -44,7 +44,7 @@ const AddRecipe: React.FC = () => {
 
   const addIngredient = () => {
     setIngredients([...ingredients, {
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).substring(2, 9),
       name: '',
       amount: '',
       unit: 'db'
@@ -73,7 +73,7 @@ const AddRecipe: React.FC = () => {
 
   const addStep = () => {
     setSteps([...steps, {
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).substring(2, 9),
       description: ''
     }]);
   };
@@ -144,7 +144,7 @@ const AddRecipe: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 bg-white rounded-lg my-6 sm:my-10">
+    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 h-screen overflow-auto rounded-lg my-6 sm:my-10">
       <h1 className="text-2xl font-bold text-black mb-6 text-center">Recept hozzáadása</h1>
 
       {/* Name Input */}

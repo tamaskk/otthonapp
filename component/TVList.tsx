@@ -88,7 +88,7 @@ enum ChannelType {
     { channel: 153, name: 'Spíler 2 TV HD', type: ChannelType.Sport },
     { channel: 154, name: 'Sport 2 HD', type: ChannelType.Sport },
     { channel: 162, name: 'The Hunting and Fishing', type: ChannelType.Sport },
-    { channel: 164, name: 'Arena 4 HD', type: ChannelType.Sport },
+    { channel: 165, name: 'Arena 4 HD', type: ChannelType.Sport },
     { channel: 166, name: 'Match 4 HD', type: ChannelType.Sport },
     { channel: 202, name: 'Spectrum HD', type: ChannelType.Zene },
     { channel: 203, name: 'BBC Earth', type: ChannelType.Ismeretterjesztő },

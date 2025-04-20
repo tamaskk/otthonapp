@@ -174,7 +174,7 @@ const Movies = () => {
   };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto h-full flex flex-col text-white">
+    <div className="p-4 max-w-6xl mx-auto max-h-[100dvh] flex-1 h-full flex flex-col text-white">
       <h1 className="text-3xl font-bold text-center mb-6 text-black">
         Film és sorozat kereső
       </h1>
@@ -213,7 +213,7 @@ const Movies = () => {
               className="text-black p-2 rounded"
             >
               <option value="">Típus</option>
-              {genres.map((g) => (
+              {genres && genres.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.title}
                 </option>
@@ -248,7 +248,7 @@ const Movies = () => {
       <div className="flex-1 overflow-y-auto">
         {type !== "saved" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {items.length > 0 ? (
+            {items?.length > 0 ? (
               items.map((item) => (
                 <div
                   onClick={() => setPickedMovie(item)}
@@ -289,7 +289,7 @@ const Movies = () => {
 
         {type === "saved" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {savedItems.length > 0 ? (
+            {savedItems?.length > 0 ? (
               savedItems.map((item) => (
                 <div
                   onClick={() => setPickedSavedMovie(item)}
@@ -356,123 +356,123 @@ const Movies = () => {
       ) : (
         <div className="text-center mt-4 sticky bottom-0 bg-white p-4 z-10">
           <span className="text-black">
-            Elmentett filmek/sorozatok: {savedItems.length}
+            Elmentett filmek/sorozatok: {savedItems?.length}
           </span>
         </div>
       )}
 
       {/* Modal for Picked Movie */}
       {pickedMovie && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-xl w-full mx-4 text-black max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setPickedMovie(null)}
-              className="absolute top-3 right-3 text-white bg-red-500 rounded-md px-2 text-lg"
-              aria-label="Close"
-            >
-              X
-            </button>
-            <img
-              src={`https://image.tmdb.org/t/p/w500${pickedMovie.poster_path}`}
-              alt={pickedMovie.title || pickedMovie.name}
-              className="w-full h-[400px] object-cover rounded-md mb-4 mt-8"
-            />
-            <h2 className="text-2xl font-bold mb-2">
-              {pickedMovie.title || pickedMovie.name}
-            </h2>
-            <p className="text-sm italic text-gray-600 mb-2">
-              Típus: {pickedMovie?.genre_ids?.map(genreName).join(", ")}
-            </p>
-            <p className="text-sm text-gray-800 whitespace-pre-wrap">
-              {pickedMovie.overview}
-            </p>
-            <a
-              href={`https://www.themoviedb.org/${type}/${pickedMovie.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block mt-4 text-blue-600 hover:underline font-medium"
-            >
-              Hol nézhető?
-            </a>
-            <button
-              onClick={saveItem}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Hozzáadás a kedvencekhez
-            </button>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 text-black">
+      <button
+        onClick={() => setPickedMovie(null)}
+        className="absolute top-3 right-3 text-white bg-red-500 rounded-md px-2 text-lg"
+        aria-label="Close"
+      >
+        X
+      </button>
+      <img
+        src={`https://image.tmdb.org/t/p/w500${pickedMovie.poster_path}`}
+        alt={pickedMovie.title || pickedMovie.name}
+        className="w-full h-[300px] object-cover rounded-md mb-4 mt-8"
+      />
+      <h2 className="text-xl font-bold mb-2">
+        {pickedMovie.title || pickedMovie.name}
+      </h2>
+      <p className="text-sm italic text-gray-600 mb-2">
+        Típus: {pickedMovie?.genre_ids?.map(genreName).join(", ")}
+      </p>
+      <p className="text-sm text-gray-800 whitespace-pre-wrap line-clamp-4">
+        {pickedMovie.overview}
+      </p>
+      <a
+        href={`https://www.themoviedb.org/${type}/${pickedMovie.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mt-4 text-blue-600 hover:underline font-medium"
+      >
+        Hol nézhető?
+      </a>
+      <button
+        onClick={saveItem}
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full"
+      >
+        Hozzáadás a kedvencekhez
+      </button>
+    </div>
+  </div>
+)}
 
       {/* Modal for Picked Saved Movie */}
       {pickedSavedMovie && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-xl w-full mx-4 text-black max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setPickedSavedMovie(null)}
-              className="absolute top-3 right-3 text-white bg-red-500 rounded-md px-2 text-lg"
-              aria-label="Close"
-            >
-              X
-            </button>
-            <img
-              src={`https://image.tmdb.org/t/p/w500${pickedSavedMovie?.poster}`}
-              alt={pickedSavedMovie?.title || pickedSavedMovie?.name}
-              className="w-full h-[400px] object-cover rounded-md mb-4 mt-8"
-            />
-            <h2 className="text-2xl font-bold mb-2">
-              {pickedSavedMovie?.title || pickedSavedMovie?.name}
-            </h2>
-            <p className="text-sm text-gray-800 whitespace-pre-wrap">
-              {pickedSavedMovie?.overview}
-            </p>
-            <div className="mt-4">
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Aktuális epizód:
-              </label>
-              <input
-                type="number"
-                value={pickedSavedMovie?.currentEpisode || 0}
-                onChange={(e) =>
-                  setPickedSavedMovie((prev: any) => ({
-                    ...prev,
-                    currentEpisode: parseInt(e.target.value) || 0,
-                  }))
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Aktuális évad:
-              </label>
-              <input
-                type="number"
-                value={pickedSavedMovie?.currentSeason || 0}
-                onChange={(e) =>
-                  setPickedSavedMovie((prev: any) => ({
-                    ...prev,
-                    currentSeason: parseInt(e.target.value) || 0,
-                  }))
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <a
-              href={`https://www.themoviedb.org/${type}/${pickedSavedMovie?.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block mt-4 text-blue-600 hover:underline font-medium"
-            >
-              Hol nézhető?
-            </a>
-            <button
-              onClick={saveProcess}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Mentés
-            </button>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 text-black">
+      <button
+        onClick={() => setPickedSavedMovie(null)}
+        className="absolute top-3 right-3 text-white bg-red-500 rounded-md px-2 text-lg"
+        aria-label="Close"
+      >
+        X
+      </button>
+      <img
+        src={`https://image.tmdb.org/t/p/w500${pickedSavedMovie?.poster}`}
+        alt={pickedSavedMovie?.title || pickedSavedMovie?.name}
+        className="w-full h-[300px] object-cover rounded-md mb-4 mt-8"
+      />
+      <h2 className="text-xl font-bold mb-2">
+        {pickedSavedMovie?.title || pickedSavedMovie?.name}
+      </h2>
+      <p className="text-sm text-gray-800 whitespace-pre-wrap line-clamp-4">
+        {pickedSavedMovie?.overview}
+      </p>
+      <div className="mt-4">
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Aktuális epizód:
+        </label>
+        <input
+          type="number"
+          value={pickedSavedMovie?.currentEpisode || 0}
+          onChange={(e) =>
+            setPickedSavedMovie((prev: any) => ({
+              ...prev,
+              currentEpisode: parseInt(e.target.value) || 0,
+            }))
+          }
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Aktuális évad:
+        </label>
+        <input
+          type="number"
+          value={pickedSavedMovie?.currentSeason || 0}
+          onChange={(e) =>
+            setPickedSavedMovie((prev: any) => ({
+              ...prev,
+              currentSeason: parseInt(e.target.value) || 0,
+            }))
+          }
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      <a
+        href={`https://www.themoviedb.org/${type}/${pickedSavedMovie?.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mt-4 text-blue-600 hover:underline font-medium"
+      >
+        Hol nézhető?
+      </a>
+      <button
+        onClick={saveProcess}
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full"
+      >
+        Mentés
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 
 const AddRecipes = () => {
   return (
-    <div className="bg-white max-h-screen h-screen overflow-y-auto relative">
+    <div className="bg-white relative">
       <ToastContainer />
       <Sidebar />
       <AddRecipe />
