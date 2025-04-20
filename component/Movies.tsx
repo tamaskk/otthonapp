@@ -61,6 +61,7 @@ const Movies = () => {
   const years = Array.from({ length: 46 }, (_, i) => i + 1980);
 
   useEffect(() => {
+    if (type === "saved") return;
     fetch(`https://api.themoviedb.org/3/genre/${type}/list?language=en`, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -79,6 +80,7 @@ const Movies = () => {
 
   useEffect(() => {
     const { genre, releaseYear, rating, page } = filters;
+    if (type === "saved") return;
     let url = `https://api.themoviedb.org/3/discover/${type}?page=${page}`;
 
     if (genre) url += `&with_genres=${genre}`;

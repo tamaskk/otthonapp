@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify';
 
 const movies = () => {
   return (
-    <div className="max-h-[100dvh] flex-1 overflow-y-auto relative">
+    <div className="max-h-[100dvh] bg-white flex-1 overflow-y-auto relative">
       <ToastContainer />
       <Sidebar />
       <Movies />

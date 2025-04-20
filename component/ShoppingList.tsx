@@ -224,7 +224,7 @@ const ShoppingList = () => {
 
   return (
     <>
-      <div className="max-h-[100dvh] flex-1 h-full overflow-hidden flex flex-col relative bg-gray-50">
+      <div className="max-h-[100dvh] flex-1 h-screen overflow-hidden flex flex-col relative bg-gray-50">
         <AddIcon
           className="absolute top-5 left-5 text-black cursor-pointer hover:scale-105 transition-transform duration-200 ease-in-out z-10"
           onClick={() => setAddItemModal(!addItemModal)}
