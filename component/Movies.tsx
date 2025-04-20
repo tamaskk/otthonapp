@@ -1,41 +1,41 @@
 import { showNotification } from "@/lib/showNotification";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const apiKey =
   "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNzhjOWFkZGE5MGJlMmE0NThhZWJmYmRkZDk1NDI2MCIsIm5iZiI6MTc0NTE2MDkxMi40MDMsInN1YiI6IjY4MDUwYWQwMDMzNDRhZWU3MDg5ZDYwMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.74LRIyeXwTUYFI5IOiLhFZZRfvxP20zbPHN2CxjbgBs";
 
-  type Genre = {
-    id: number;
-    name: string;
-    title: string; // Hungarian translation
-  };
+type Genre = {
+  id: number;
+  name: string;
+  title: string; // Hungarian translation
+};
 
-  const translations: Record<string, string> = {
-    Action: "Akció",
-    Adventure: "Kaland",
-    Animation: "Animáció",
-    Comedy: "Vígjáték",
-    Crime: "Bűnügyi",
-    Documentary: "Dokumentumfilm",
-    Drama: "Dráma",
-    Family: "Családi",
-    Fantasy: "Fantasy",
-    History: "Történelem",
-    Horror: "Horror",
-    Music: "Zene",
-    Mystery: "Rejtély",
-    Romance: "Romantikus",
-    "Science Fiction": "Tudományos-fantasztikus",
-    "TV Movie": "TV film",
-    Thriller: "Thriller",
-    War: "Háborús",
-    Western: "Western",
-  };
+const translations: Record<string, string> = {
+  Action: "Akció",
+  Adventure: "Kaland",
+  Animation: "Animáció",
+  Comedy: "Vígjáték",
+  Crime: "Bűnügyi",
+  Documentary: "Dokumentumfilm",
+  Drama: "Dráma",
+  Family: "Családi",
+  Fantasy: "Fantasy",
+  History: "Történelem",
+  Horror: "Horror",
+  Music: "Zene",
+  Mystery: "Rejtély",
+  Romance: "Romantikus",
+  "Science Fiction": "Tudományos-fantasztikus",
+  "TV Movie": "TV film",
+  Thriller: "Thriller",
+  War: "Háborús",
+  Western: "Western",
+};
 
 const Movies = () => {
   const [type, setType] = useState<"movie" | "tv" | "saved">("saved");
   const [items, setItems] = useState<any[]>([]);
-  const [genres, setGenres] = useState<{ id: number; name: string, title: string }[]>([]);
+  const [genres, setGenres] = useState<{ id: number; name: string; title: string }[]>([]);
   const [filters, setFilters] = useState({
     genre: "",
     releaseYear: "",
@@ -55,7 +55,6 @@ const Movies = () => {
       currentSeason?: number;
     }[]
   >([]);
-
   const [pickedMovie, setPickedMovie] = useState<any>(null);
   const [pickedSavedMovie, setPickedSavedMovie] = useState<any>(null);
 
@@ -112,14 +111,13 @@ const Movies = () => {
       },
     });
     const data = await response.json();
-
     setSavedItems(data.savedItems);
   };
 
   const saveItem = async () => {
     if (!pickedMovie) return;
 
-    showNotification('Kérlek várj...', 'info');
+    showNotification("Kérlek várj...", "info");
 
     const response = await fetch("/api/movies", {
       method: "POST",
@@ -135,12 +133,12 @@ const Movies = () => {
       }),
     });
     if (!response.ok) {
-      showNotification('Hiba történt a mentés során!', 'error');
+      showNotification("Hiba történt a mentés során!", "error");
       return;
     }
 
     const data = await response.json();
-    showNotification('Sikeresen elmentetted!', 'success');
+    showNotification("Sikeresen elmentetted!", "success");
   };
 
   useEffect(() => {
@@ -150,38 +148,38 @@ const Movies = () => {
   const genreName = (id: number) =>
     genres ? genres.find((g) => g.id === id)?.name || "" : "";
 
-const saveProcess = async () => {
+  const saveProcess = async () => {
     if (!pickedSavedMovie) return;
-    
-    showNotification('Kérlek várj...', 'info');
-    
+
+    showNotification("Kérlek várj...", "info");
+
     const response = await fetch("/api/movies", {
-        method: "PATCH",
-        headers: {
+      method: "PATCH",
+      headers: {
         "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      },
+      body: JSON.stringify({
         _id: pickedSavedMovie._id,
         currentEpisode: pickedSavedMovie.currentEpisode,
         currentSeason: pickedSavedMovie.currentSeason,
-        }),
+      }),
     });
     if (!response.ok) {
-        showNotification('Hiba történt a mentés során!', 'error');
-        return;
+      showNotification("Hiba történt a mentés során!", "error");
+      return;
     }
-    
+
     const data = await response.json();
-    showNotification('Sikeresen elmentetted!', 'success');
-}
+    showNotification("Sikeresen elmentetted!", "success");
+  };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto max-h-screen text-white">
+    <div className="p-4 max-w-6xl mx-auto h-full flex flex-col text-white">
       <h1 className="text-3xl font-bold text-center mb-6 text-black">
         Film és sorozat kereső
       </h1>
-      <div className="flex flex-wrap gap-4 justify-center mb-6">
-      <button
+      <div className="flex flex-wrap gap-4 justify-center mb-6 sticky top-0 bg-white z-10 p-4">
+        <button
           onClick={() => {
             setType("saved");
             getSavedItems();
@@ -215,18 +213,14 @@ const saveProcess = async () => {
               className="text-black p-2 rounded"
             >
               <option value="">Típus</option>
-              {genres
-                ? genres.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.title}
-                    </option>
-                  ))
-                : null}
+              {genres.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.title}
+                </option>
+              ))}
             </select>
             <select
-              onChange={(e) =>
-                handleFilterChange("releaseYear", e.target.value)
-              }
+              onChange={(e) => handleFilterChange("releaseYear", e.target.value)}
               className="text-black p-2 rounded"
             >
               <option value="">Évszám</option>
@@ -251,58 +245,54 @@ const saveProcess = async () => {
         )}
       </div>
 
-      {type !== "saved" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {items ? (
-            items.map((item) => (
-              <div
-                onClick={() => {
-                  setPickedMovie(item);
-                }}
-                key={item.id}
-                className="bg-white rounded-lg shadow-xl text-black p-4"
-              >
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                  alt={item.title || item.name}
-                  className="rounded mb-2 w-full h-[400px] object-cover"
-                />
-                <h2 className="text-xl font-semibold">
-                  {item.title || item.name}
-                </h2>
-                <p className="text-sm italic text-gray-300 mb-1">
-                  Típus: {item.genre_ids.map(genreName).join(", ")}
-                </p>
-                <p className="text-sm text-gray-400">
-                  {item.overview?.slice(0, 100)}...
-                </p>
-                <a
-                  href={`https://www.themoviedb.org/${type}/${item.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block mt-2 text-blue-400 hover:underline"
+      <div className="flex-1 overflow-y-auto">
+        {type !== "saved" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {items.length > 0 ? (
+              items.map((item) => (
+                <div
+                  onClick={() => setPickedMovie(item)}
+                  key={item.id}
+                  className="bg-white rounded-lg shadow-xl text-black p-4"
                 >
-                  Where to watch?
-                </a>
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                    alt={item.title || item.name}
+                    className="rounded mb-2 w-full h-[400px] object-cover"
+                  />
+                  <h2 className="text-xl font-semibold">
+                    {item.title || item.name}
+                  </h2>
+                  <p className="text-sm italic text-gray-300 mb-1">
+                    Típus: {item.genre_ids.map(genreName).join(", ")}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {item.overview?.slice(0, 100)}...
+                  </p>
+                  <a
+                    href={`https://www.themoviedb.org/${type}/${item.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block mt-2 text-blue-400 hover:underline"
+                  >
+                    Where to watch?
+                  </a>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-4 text-center text-gray-500">
+                Nincs találat
               </div>
-            ))
-          ) : (
-            <div className="col-span-4 text-center text-gray-500">
-              Nincs találat
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
 
-      {type === "saved" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {savedItems ? (
+        {type === "saved" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {savedItems.length > 0 ? (
               savedItems.map((item) => (
                 <div
-                  onClick={() => {
-                    setPickedSavedMovie(item);
-                    // console.log(item);
-                  }}
+                  onClick={() => setPickedSavedMovie(item)}
                   key={item.id}
                   className="bg-white rounded-lg shadow-xl text-black p-4"
                 >
@@ -311,15 +301,13 @@ const saveProcess = async () => {
                     alt={item.name}
                     className="rounded mb-2 w-full h-[400px] object-cover"
                   />
-                  <h2 className="text-xl font-semibold">
-                    {item.name}
-                  </h2>
+                  <h2 className="text-xl font-semibold">{item.name}</h2>
                   <p className="text-sm italic text-black mb-1">
                     Jelenlegi epizód: {item.currentEpisode}
                   </p>
-                    <p className="text-sm italic text-black mb-1">
-                        Jelenlegi évad: {item.currentSeason}
-                    </p>
+                  <p className="text-sm italic text-black mb-1">
+                    Jelenlegi évad: {item.currentSeason}
+                  </p>
                   <a
                     href={`https://www.themoviedb.org/${type}/${item?.id}`}
                     target="_blank"
@@ -336,10 +324,11 @@ const saveProcess = async () => {
               </div>
             )}
           </div>
-      )}
+        )}
+      </div>
 
       {type !== "saved" ? (
-        <div className="flex justify-center gap-4 mt-8">
+        <div className="flex justify-center gap-4 mt-8 sticky bottom-0 bg-white p-4 z-10">
           <button
             onClick={() =>
               setFilters((prev) => ({
@@ -347,7 +336,7 @@ const saveProcess = async () => {
                 page: Math.max(prev.page - 1, 1),
               }))
             }
-            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 text-white"
             disabled={filters.page === 1}
           >
             Previous
@@ -359,59 +348,44 @@ const saveProcess = async () => {
             onClick={() =>
               setFilters((prev) => ({ ...prev, page: prev.page + 1 }))
             }
-            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 text-white"
           >
             Next
           </button>
         </div>
       ) : (
-        <div className="text-center mt-4">
-          <span className="text-black mt-5">
+        <div className="text-center mt-4 sticky bottom-0 bg-white p-4 z-10">
+          <span className="text-black">
             Elmentett filmek/sorozatok: {savedItems.length}
           </span>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal for Picked Movie */}
       {pickedMovie && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${
-            pickedMovie ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-xl w-full mx-4 text-black max-h-[90vh] overflow-y-auto">
-            {/* Close button */}
             <button
               onClick={() => setPickedMovie(null)}
-              className="absolute top-3 right-3 text-white bg-red-500 rounded-md flex px-2 items-center justify-center text-lg"
+              className="absolute top-3 right-3 text-white bg-red-500 rounded-md px-2 text-lg"
               aria-label="Close"
             >
               X
             </button>
-
-            {/* Poster */}
             <img
               src={`https://image.tmdb.org/t/p/w500${pickedMovie.poster_path}`}
               alt={pickedMovie.title || pickedMovie.name}
               className="w-full h-[400px] object-cover rounded-md mb-4 mt-8"
             />
-
-            {/* Title */}
             <h2 className="text-2xl font-bold mb-2">
               {pickedMovie.title || pickedMovie.name}
             </h2>
-
-            {/* Genre */}
             <p className="text-sm italic text-gray-600 mb-2">
               Típus: {pickedMovie?.genre_ids?.map(genreName).join(", ")}
             </p>
-
-            {/* Overview */}
             <p className="text-sm text-gray-800 whitespace-pre-wrap">
               {pickedMovie.overview}
             </p>
-
-            {/* Link */}
             <a
               href={`https://www.themoviedb.org/${type}/${pickedMovie.id}`}
               target="_blank"
@@ -430,73 +404,58 @@ const saveProcess = async () => {
         </div>
       )}
 
+      {/* Modal for Picked Saved Movie */}
       {pickedSavedMovie && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${
-            pickedSavedMovie ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-xl w-full mx-4 text-black max-h-[90vh] overflow-y-auto">
-            {/* Close button */}
             <button
               onClick={() => setPickedSavedMovie(null)}
-              className="absolute top-3 right-3 text-white bg-red-500 rounded-md flex px-2 items-center justify-center text-lg"
+              className="absolute top-3 right-3 text-white bg-red-500 rounded-md px-2 text-lg"
               aria-label="Close"
             >
               X
             </button>
-
-            {/* Poster */}
             <img
               src={`https://image.tmdb.org/t/p/w500${pickedSavedMovie?.poster}`}
               alt={pickedSavedMovie?.title || pickedSavedMovie?.name}
               className="w-full h-[400px] object-cover rounded-md mb-4 mt-8"
             />
-
-            {/* Title */}
             <h2 className="text-2xl font-bold mb-2">
               {pickedSavedMovie?.title || pickedSavedMovie?.name}
             </h2>
-
-            {/* Overview */}
             <p className="text-sm text-gray-800 whitespace-pre-wrap">
               {pickedSavedMovie?.overview}
             </p>
-
-            {/* Current Episode */}
             <div className="mt-4">
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 Aktuális epizód:
               </label>
               <input
                 type="number"
-                value={pickedSavedMovie?.currentEpisode}
+                value={pickedSavedMovie?.currentEpisode || 0}
                 onChange={(e) =>
                   setPickedSavedMovie((prev: any) => ({
                     ...prev,
-                    currentEpisode: parseInt(e.target.value),
+                    currentEpisode: parseInt(e.target.value) || 0,
                   }))
                 }
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
-
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                    Aktuális évad:
-                </label>
-                <input
-                    type="number"
-                    value={pickedSavedMovie?.currentSeason}
-                    onChange={(e) =>
-                        setPickedSavedMovie((prev: any) => ({
-                            ...prev,
-                            currentSeason: parseInt(e.target.value),
-                        }))
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                />
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Aktuális évad:
+              </label>
+              <input
+                type="number"
+                value={pickedSavedMovie?.currentSeason || 0}
+                onChange={(e) =>
+                  setPickedSavedMovie((prev: any) => ({
+                    ...prev,
+                    currentSeason: parseInt(e.target.value) || 0,
+                  }))
+                }
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
             </div>
-
-            {/* Link */}
             <a
               href={`https://www.themoviedb.org/${type}/${pickedSavedMovie?.id}`}
               target="_blank"
