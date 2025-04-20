@@ -212,7 +212,7 @@ const Movies = () => {
           <>
             <select
               onChange={(e) => handleFilterChange("genre", e.target.value)}
-              className="text-black p-2 rounded"
+              className="text-black p-2 rounded border-gray-300 border"
             >
               <option value="">Típus</option>
               {genres && genres.map((g) => (
@@ -223,7 +223,7 @@ const Movies = () => {
             </select>
             <select
               onChange={(e) => handleFilterChange("releaseYear", e.target.value)}
-              className="text-black p-2 rounded"
+              className="text-black p-2 rounded border-gray-300 border"
             >
               <option value="">Évszám</option>
               {years.map((year) => (
@@ -234,7 +234,7 @@ const Movies = () => {
             </select>
             <select
               onChange={(e) => handleFilterChange("rating", e.target.value)}
-              className="text-black p-2 rounded"
+              className="text-black p-2 rounded border-gray-300 border"
             >
               <option value="">Értékelés</option>
               {[...Array(10)].map((_, i) => (
