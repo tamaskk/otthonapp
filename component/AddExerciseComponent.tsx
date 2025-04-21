@@ -42,12 +42,51 @@ const AddExerciseComponent = () => {
   const [sets, setSets] = useState<number | null>(null);
   const [weight, setWeight] = useState<number | null>(null);
   const [restTime, setRestTime] = useState<number | null>(null);
+  const [note, setNote] = useState<string>("");
 
   const toggleExerciseType = (type: ExerciseType) => {
     setSelectedTypes(prev =>
       prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     );
   };
+
+  const getAIExercise = async () => {
+
+    if (selectedTypes.length === 0) {
+      showNotification('Kérlek válassz egy típust!', 'error');
+      return;
+    }
+
+    try {
+      showNotification('AI recept generálása folyamatban...', 'info');
+      const response = await fetch('/api/ai-exercise', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type: selectedTypes[0] }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('AI Recipe:', data);
+        setExerciseName(data.name);
+        setExerciseDescription(data.description);
+        setSelectedTypes(data.types.map((type: string) => type.toLowerCase() as ExerciseType));
+        setRepetitions(data.repetitions);
+        setSets(data.sets);
+        setWeight(data.weight);
+        setRestTime(data.restTime);
+        setNote(data.note);
+        showNotification('AI recept sikeresen generálva!', 'success');
+      } else {
+        console.error('Error fetching AI recipe:', data.error);
+      }
+    } catch (error) { 
+      console.error('Error:', error);
+    }
+  }
 
   const saveExercise = async () => {
     const exercise = {
@@ -57,7 +96,8 @@ const AddExerciseComponent = () => {
       repetitions,
       sets,
       weight,
-      restTime
+      restTime,
+      note
     };
 
     const response = await fetch("/api/exercise", {
@@ -162,6 +202,7 @@ const AddExerciseComponent = () => {
           Gyakorlat mentése
         </button>
         <button
+          onClick={getAIExercise}
           className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl"
         >
           AI Generálás

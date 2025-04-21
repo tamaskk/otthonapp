@@ -51,13 +51,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       .status(201)
       .json(result.acknowledged ? newItem : { message: "Failed to add item" });
   } else if (method === "DELETE") {
-    const id = req.query.id;
+    const{  _id } = req.body;
 
-    if (!id || typeof id !== "string") {
+    if (!_id || typeof _id !== "string") {
       return res.status(422).json({ message: "ID is required" });
     }
 
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    const result = await collection.deleteOne({ _id: new ObjectId(_id) });
     await client.close();
 
     res

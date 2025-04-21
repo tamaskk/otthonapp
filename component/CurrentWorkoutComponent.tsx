@@ -28,6 +28,7 @@ interface Exercise {
   sets: number | null;
   weight: number | null;
   restTime: number | null;
+  note: string | null;
 }
 
 interface Workout {
@@ -335,6 +336,9 @@ const WorkoutStartComponent = () => {
               YouTube keresés
             </a>
           )}
+          {currentExercise.note && (
+            <p className="text-sm text-gray-500">{currentExercise.note}</p>)
+            }
           <div className="space-y-2">
             {exerciseProgress?.sets?.length > 0 ? (
               exerciseProgress.sets.map((set, index) => (

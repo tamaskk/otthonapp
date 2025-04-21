@@ -3,6 +3,7 @@ import { Dialog } from "@headlessui/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Check } from "lucide-react";
 import { showNotification } from "@/lib/showNotification";
+import Modal from "./Modal";
 
 enum ExerciseType {
   CHEST = "chest",
@@ -235,19 +236,11 @@ const WorkoutSettingsComponent = () => {
         ))}
       </div>
 
-      <Dialog
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        className="relative z-50 text-black"
-      >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg space-y-4">
-            <Dialog.Title className="text-xl font-bold text-center">
-              Edzés részletei
-            </Dialog.Title>
-
-            {selectedWorkout && (
+      <Modal
+        handlerFunction={() => setModalOpen(false)}
+        state={modalOpen}
+        >
+                      {selectedWorkout && (
               <div className="space-y-4">
                 <span>
                   <strong>Edzés neve:</strong>
@@ -358,9 +351,8 @@ const WorkoutSettingsComponent = () => {
                 </div>
               </div>
             )}
-          </Dialog.Panel>
-        </div>
-      </Dialog>
+        </Modal>
+
     </div>
   );
 }

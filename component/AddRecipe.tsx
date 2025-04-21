@@ -34,6 +34,37 @@ const AddRecipe: React.FC = () => {
     );
   };
 
+  const getAIRecipe = async () => {
+    try {
+      showNotification('AI recept generálása folyamatban...', 'info');
+      const response = await fetch('/api/ai-recipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ foodName: name ?? selectedTypes[0] , type: 'food' }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('AI Recipe:', data);
+        setName(data.name);
+        setUrl(data.url);
+        setSelectedTypes([...data.types]);
+        setSelectedDifficulties([...data.difficulties]);
+        setIngredients(data.ingredients);
+        setSteps(data.steps);
+        setNotes(data.note);
+        showNotification('AI recept sikeresen generálva!', 'success');
+      } else {
+        console.error('Error fetching AI recipe:', data.error);
+      }
+    } catch (error) { 
+      console.error('Error:', error);
+    }
+  }
+
   const toggleDifficulty = (difficulty: string) => {
     setSelectedDifficulties(prev =>
       prev.includes(difficulty)
@@ -144,7 +175,7 @@ const AddRecipe: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 h-screen overflow-auto rounded-lg my-6 sm:my-10">
+    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 h-screen overflow-auto rounded-lg">
       <h1 className="text-2xl font-bold text-black mb-6 text-center">Recept hozzáadása</h1>
 
       {/* Name Input */}
@@ -334,6 +365,12 @@ const AddRecipe: React.FC = () => {
           className="w-full sm:w-auto px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base"
         >
           Recept mentése
+        </button>
+        <button
+          onClick={getAIRecipe}
+          className="w-full sm:w-auto px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm sm:text-base mt-4"
+        >
+          AI Recept generálása
         </button>
       </div>
     </div>

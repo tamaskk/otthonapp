@@ -5,6 +5,7 @@ import { toast, Bounce } from 'react-toastify';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Modal from './Modal';
 
 interface ShoppingListItem {
   _id: string;
@@ -308,16 +309,16 @@ const ShoppingList = () => {
         </div>
       </div>
 
+<Modal
+  handlerFunction={() => setAddItemModal(false)}
+  state={addItemModal}
+>
       <div
         className={`
-          fixed top-1/2 left-1/2 
-          ${addItemModal ? 'translate-y-[-50%]' : 'translate-y-[-200%]'} 
-          translate-x-[-50%] 
-          w-[90%] max-w-md 
           bg-white 
           flex flex-col gap-4 
           z-50 transition-all duration-300 
-          shadow-2xl rounded-2xl p-6 text-black
+         rounded-2xl p-6 text-black
         `}
       >
         <h1 className="text-2xl font-semibold text-gray-800 text-center">
@@ -396,6 +397,8 @@ const ShoppingList = () => {
           </button>
         </div>
       </div>
+</Modal>
+
     </>
   );
 };
