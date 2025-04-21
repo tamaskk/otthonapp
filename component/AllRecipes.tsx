@@ -86,9 +86,7 @@ const AllRecipes: React.FC = () => {
 
   return (
 <div className="bg-white max-h-[100dvh] flex-1 h-full overflow-hidden p-6 flex flex-col items-center justify-start">      {/* Fixed Header and Filters */}
-      <div className="w-full p-6 flex flex-col items-center bg-white z-10">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          Receptek
+      <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">          Receptek
         </h1>
 
         <div className="bg-gray-100 p-6 w-[90%] rounded-md shadow-md text-black space-y-4">
@@ -113,7 +111,6 @@ const AllRecipes: React.FC = () => {
             onChange={(e) => setSearchName(e.target.value)}
           />
         </div>
-      </div>
 
       {/* Scrollable Recipes Grid */}
       <div className="flex-1 w-screen overflow-y-auto px-4 md:px-0">

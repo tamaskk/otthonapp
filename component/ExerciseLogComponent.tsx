@@ -128,8 +128,10 @@ const ExerciseLogComponent = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Edzésnapló</h2>
-      {exerciseLogs.length === 0 ? (
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+        Edzésnapló
+      </h1>
+        {exerciseLogs.length === 0 ? (
         <div className="text-center text-gray-500 text-lg">
           Nincsenek edzésnaplók.
         </div>

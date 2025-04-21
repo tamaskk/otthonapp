@@ -177,10 +177,8 @@ const EditRecipe: React.FC = () => {
 
   return (
     <div className="bg-white max-h-[100dvh] flex-1 h-full overflow-hidden p-6 flex flex-col items-center justify-start">
-      {" "}
-      {/* Fixed Header and Filters */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        Receptek
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center"> 
+       Receptek szerkesztése
       </h1>
       <div className="bg-gray-100 mb-4 p-6 w-[90%] rounded-md shadow-md text-black space-y-4">
         <select

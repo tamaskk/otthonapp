@@ -172,8 +172,10 @@ const ExerciseSettingsComponent = () => {
 
   return (
     <div className="p-4 max-w-4xl mx-auto text-black">
-      <h2 className="text-2xl font-semibold mb-4">Gyakorlatok</h2>
-      <div className="grid gap-4">
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+      Gyakorlatok kezelése
+    </h1>
+        <div className="grid gap-4">
         {exercises.map((exercise, idx) => (
           <div
             key={idx}

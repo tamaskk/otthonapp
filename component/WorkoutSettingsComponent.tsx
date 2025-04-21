@@ -211,8 +211,10 @@ const WorkoutSettingsComponent = () => {
 
   return (
     <div className="p-4 max-w-4xl mx-auto text-black">
-      <h2 className="text-2xl font-semibold mb-4">Edzések</h2>
-      <div className="grid gap-4">
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+      Edzés beállítások
+    </h1>
+        <div className="grid gap-4">
         {workouts.map((workout) => (
           <div
             key={workout._id}

@@ -175,205 +175,211 @@ const AddRecipe: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 h-screen overflow-auto rounded-lg">
-      <h1 className="text-2xl font-bold text-black mb-6 text-center">Recept hozzáadása</h1>
+<div className="max-h-[100dvh] h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-gray-100 text-gray-900 p-6 sm:p-8">
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Recept hozzáadása</h1>
 
-      {/* Name Input */}
-      <div className="mb-6">
-        <label className="block text-black font-medium mb-2">Recept neve</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-          placeholder="Pl. Házi pizza"
-        />
-      </div>
+  <div className="space-y-8 bg-white rounded-2xl shadow-sm p-6 sm:p-8">
+    {/* Name Input */}
+    <div>
+      <label className="block text-gray-700 font-semibold mb-2">Recept neve</label>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        placeholder="Pl. Házi pizza"
+      />
+    </div>
 
-      {/* Recipe Type Buttons */}
-      <div className="mb-6">
-        <label className="block text-black font-medium mb-2">Típus</label>
-        <div className="flex flex-wrap gap-2">
-          {recipeTypes.map(type => (
-            <button
-              key={type}
-              onClick={() => toggleType(type)}
-              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg transition-colors text-black text-sm sm:text-base ${
-                selectedTypes.includes(type)
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Difficulty Buttons */}
-      <div className="mb-6">
-        <label className="block text-black font-medium mb-2">Nehézség</label>
-        <div className="flex flex-wrap gap-2">
-          {recipeDifficulties.map(difficulty => (
-            <button
-              key={difficulty}
-              onClick={() => toggleDifficulty(difficulty)}
-              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg transition-colors text-black text-sm sm:text-base ${
-                selectedDifficulties.includes(difficulty)
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-            >
-              {difficulty}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* URL Input */}
-      <div className="mb-6">
-        <label className="block text-black font-medium mb-2">Kép URL</label>
-        <input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-          placeholder="https://example.com"
-        />
-      </div>
-
-      {/* Ingredients Section */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3">
-          <label className="text-black font-medium mb-2 sm:mb-0">Hozzávalók</label>
+    {/* Recipe Type Buttons */}
+    <div>
+      <label className="block text-gray-700 font-semibold mb-3">Típus</label>
+      <div className="flex flex-wrap gap-3">
+        {recipeTypes.map(type => (
           <button
-            onClick={addIngredient}
-            className="px-3 py-1 sm:px-4 sm:py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm sm:text-base"
+            key={type}
+            onClick={() => toggleType(type)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              selectedTypes.includes(type)
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+            }`}
           >
-            + Hozzávaló hozzáadása
+            {type}
           </button>
-        </div>
-        {ingredients.map((ingredient, index) => (
-          <div key={ingredient.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-            <input
-              type="text"
-              value={ingredient.name}
-              onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
-              className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black text-sm sm:text-base"
-              placeholder="Hozzávaló neve"
-            />
-            <input
-              type="text"
-              value={ingredient.amount}
-              onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
-              className="w-full sm:w-20 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black text-sm sm:text-base"
-              placeholder="Mennyiség"
-            />
-            <select
-              value={ingredient.unit}
-              onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
-              className="w-full sm:w-20 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black text-sm sm:text-base"
-            >
-              {units.map(unit => (
-                <option key={unit} value={unit}>{unit}</option>
-              ))}
-            </select>
-            <div className="flex gap-2">
-              <button
-                onClick={() => moveIngredient(ingredient.id, 'up')}
-                disabled={index === 0}
-                className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-black text-sm sm:text-base"
-              >
-                ↑
-              </button>
-              <button
-                onClick={() => moveIngredient(ingredient.id, 'down')}
-                disabled={index === ingredients.length - 1}
-                className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-black text-sm sm:text-base"
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => deleteIngredient(ingredient.id)}
-                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm sm:text-base"
-              >
-                ×
-              </button>
-            </div>
-          </div>
         ))}
       </div>
+    </div>
 
-      {/* Steps Section */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3">
-          <label className="text-black font-medium mb-2 sm:mb-0">Lépések</label>
+    {/* Difficulty Buttons */}
+    <div>
+      <label className="block text-gray-700 font-semibold mb-3">Nehézség</label>
+      <div className="flex flex-wrap gap-3">
+        {recipeDifficulties.map(difficulty => (
           <button
-            onClick={addStep}
-            className="px-3 py-1 sm:px-4 sm:py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm sm:text-base"
+            key={difficulty}
+            onClick={() => toggleDifficulty(difficulty)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              selectedDifficulties.includes(difficulty)
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+            }`}
           >
-            + Lépés hozzáadása
+            {difficulty}
           </button>
-        </div>
-        {steps.map((step, index) => (
-          <div key={step.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-            <input
-              type="text"
-              value={step.description}
-              onChange={(e) => updateStep(step.id, e.target.value)}
-              className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black text-sm sm:text-base"
-              placeholder={`Lépés ${index + 1}`}
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => moveStep(step.id, 'up')}
-                disabled={index === 0}
-                className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-black text-sm sm:text-base"
-              >
-                ↑
-              </button>
-              <button
-                onClick={() => moveStep(step.id, 'down')}
-                disabled={index === steps.length - 1}
-                className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-black text-sm sm:text-base"
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => deleteStep(step.id)}
-                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm sm:text-base"
-              >
-                ×
-              </button>
-            </div>
-          </div>
         ))}
       </div>
+    </div>
 
-      <textarea 
-        className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black mb-6"
+    {/* URL Input */}
+    <div>
+      <label className="block text-gray-700 font-semibold mb-2">Kép URL</label>
+      <input
+        type="url"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        className="w-full p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        placeholder="https://example.com"
+      />
+    </div>
+
+    {/* Ingredients Section */}
+    <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+        <label className="text-gray-700 font-semibold mb-2 sm:mb-0">Hozzávalók</label>
+        <button
+          onClick={addIngredient}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+        >
+          + Hozzávaló hozzáadása
+        </button>
+      </div>
+      {ingredients.map((ingredient, index) => (
+        <div key={ingredient.id} className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+          <input
+            type="text"
+            value={ingredient.name}
+            onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
+            className="flex-1 p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
+            placeholder="Hozzávaló neve"
+          />
+          <input
+            type="text"
+            value={ingredient.amount}
+            onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
+            className="w-full sm:w-24 p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
+            placeholder="Mennyiség"
+          />
+          <select
+            value={ingredient.unit}
+            onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
+            className="w-full sm:w-32 p-3 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
+          >
+            {units.map(unit => (
+              <option key={unit} value={unit}>{unit}</option>
+            ))}
+          </select>
+          <div className="flex gap-2">
+            <button
+              onClick={() => moveIngredient(ingredient.id, 'up')}
+              disabled={index === 0}
+              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+            >
+              ↑
+            </button>
+            <button
+              onClick={() => moveIngredient(ingredient.id, 'down')}
+              disabled={index === ingredients.length - 1}
+              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+            >
+              ↓
+            </button>
+            <button
+              onClick={() => deleteIngredient(ingredient.id)}
+              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Steps Section */}
+    <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+        <label className="text-gray-700 font-semibold mb-2 sm:mb-0">Lépések</label>
+        <button
+          onClick={addStep}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+        >
+          + Lépés hozzáadása
+        </button>
+      </div>
+      {steps.map((step, index) => (
+        <div key={step.id} className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+          <input
+            type="text"
+            value={step.description}
+            onChange={(e) => updateStep(step.id, e.target.value)}
+            className="flex-1 p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
+            placeholder={`Lépés ${index + 1}`}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => moveStep(step.id, 'up')}
+              disabled={index === 0}
+              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+            >
+              ↑
+            </button>
+            <button
+              onClick={() => moveStep(step.id, 'down')}
+              disabled={index === steps.length - 1}
+              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+            >
+              ↓
+            </button>
+            <button
+              onClick={() => deleteStep(step.id)}
+              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Notes Section */}
+    <div>
+      <label className="block text-gray-700 font-semibold mb-2">Egyéb megjegyzések</label>
+      <textarea
+        className="w-full min-h-[120px] p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y text-sm"
         placeholder="Egyéb megjegyzések"
         rows={4}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
       />
-
-      {/* Save Button */}
-      <div className="text-center">
-        <button
-          onClick={handleSave}
-          className="w-full sm:w-auto px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base"
-        >
-          Recept mentése
-        </button>
-        <button
-          onClick={getAIRecipe}
-          className="w-full sm:w-auto px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm sm:text-base mt-4"
-        >
-          AI Recept generálása
-        </button>
-      </div>
     </div>
+
+    {/* Save and AI Buttons */}
+    <div className="flex flex-col sm:flex-row gap-4">
+      <button
+        onClick={handleSave}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+      >
+        Recept mentése
+      </button>
+      <button
+        onClick={getAIRecipe}
+        className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+      >
+        AI Recept generálása
+      </button>
+    </div>
+  </div>
+</div>
   );
 };
 

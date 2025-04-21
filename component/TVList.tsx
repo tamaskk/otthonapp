@@ -219,9 +219,9 @@ enum ChannelType {
   
     return (
       <div className="p-4 text-black">
-        <div>
-          <h1 className="text-2xl font-bold mb-4">TV csatornák</h1>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          TV csatornák
+        </h1>
   
         <div>
           <input

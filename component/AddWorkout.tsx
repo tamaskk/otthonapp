@@ -123,8 +123,9 @@ const AddWorkoutComponent = () => {
 
   return (
     <div className="max-w-4xl text-black mx-auto p-6 bg-white rounded-xl shadow-md mt-6">
-      <h1 className="text-2xl font-bold mb-4">Új edzés hozzáadása</h1>
-
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+        Új edzés hozzáadása
+      </h1>
       {/* Name Input */}
       <input
         type="text"

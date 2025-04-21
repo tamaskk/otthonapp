@@ -126,7 +126,7 @@ const AddExerciseComponent = () => {
 
   return (
 <div className="max-h-[100dvh] h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-gray-100 text-gray-900 p-6 sm:p-8">
-  <h2 className="text-3xl font-bold text-gray-800 mb-6">Új gyakorlat hozzáadása</h2>
+<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Új gyakorlat hozzáadása</h1>
 
   <div className="space-y-6 bg-white rounded-2xl shadow-sm p-6 sm:p-8">
     <input
