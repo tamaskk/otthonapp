@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { showNotification } from '@/lib/showNotification';
 
 enum ExerciseType {
@@ -125,90 +125,92 @@ const AddExerciseComponent = () => {
   };
 
   return (
-    <div className="max-h-[100dvh] text-black p-8 flex-1 h-screen overflow-y-auto overflow-x-hidden flex flex-col relative bg-gray-50">
-    <h2 className="text-2xl font-semibold">Új gyakorlat hozzáadása</h2>
+<div className="max-h-[100dvh] h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-gray-100 text-gray-900 p-6 sm:p-8">
+  <h2 className="text-3xl font-bold text-gray-800 mb-6">Új gyakorlat hozzáadása</h2>
 
-      <div className="space-y-4">
-        <input
-          type="text"
-          placeholder="Gyakorlat neve"
-          className="w-full border placeholder:text-gray-500 rounded-xl px-4 py-2"
-          value={exerciseName}
-          onChange={e => setExerciseName(e.target.value)}
-        />
+  <div className="space-y-6 bg-white rounded-2xl shadow-sm p-6 sm:p-8">
+    <input
+      type="text"
+      placeholder="Gyakorlat neve"
+      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+      value={exerciseName}
+      onChange={e => setExerciseName(e.target.value)}
+    />
 
-        <textarea
-          placeholder="Leírás (opcionális)"
-          className="w-full border rounded-xl px-4 py-2 placeholder:text-gray-500 min-h-[100px]"
-          value={exerciseDescription}
-          onChange={e => setExerciseDescription(e.target.value)}
-        />
+    <textarea
+      placeholder="Leírás (opcionális)"
+      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-gray-700 placeholder:text-gray-400 min-h-[120px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+      value={exerciseDescription}
+      onChange={e => setExerciseDescription(e.target.value)}
+    />
 
-        <div>
-          <p className="font-medium mb-2">Típus(ok)</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {exerciseTypeOptions.map(({ name, value }) => (
-              <button
-                key={value}
-                className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm ${
-                  selectedTypes.includes(value)
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-gray-800 border-gray-300"
-                }`}
-                onClick={() => toggleExerciseType(value)}
-              >
-                {name}
-                {selectedTypes.includes(value) && <Check size={16} />}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <input
-            type="number"
-            placeholder="Ismétlések"
-            className="border rounded-xl px-3 py-2 w-full"
-            value={repetitions || ''}
-            onChange={e => setRepetitions(Number(e.target.value))}
-          />
-          <input
-            type="number"
-            placeholder="Sorozatok"
-            className="border rounded-xl px-3 py-2 w-full"
-            value={sets || ''}
-            onChange={e => setSets(Number(e.target.value))}
-          />
-          <input
-            type="number"
-            placeholder="Súly (kg)"
-            className="border rounded-xl px-3 py-2 w-full"
-            value={weight || ''}
-            onChange={e => setWeight(Number(e.target.value))}
-          />
-          <input
-            type="number"
-            placeholder="Pihenő (mp)"
-            className="border rounded-xl px-3 py-2 w-full"
-            value={restTime || ''}
-            onChange={e => setRestTime(Number(e.target.value))}
-          />
-        </div>
-
-        <button
-          className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl"
-          onClick={saveExercise}
-        >
-          Gyakorlat mentése
-        </button>
-        <button
-          onClick={getAIExercise}
-          className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl"
-        >
-          AI Generálás
-        </button>
+    <div>
+      <p className="font-semibold text-gray-700 mb-3">Típus(ok)</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {exerciseTypeOptions.map(({ name, value }) => (
+          <button
+            key={value}
+            className={`flex items-center justify-between px-4 py-2.5 rounded-lg border text-sm font-medium transition ${
+              selectedTypes.includes(value)
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+            }`}
+            onClick={() => toggleExerciseType(value)}
+          >
+            {name}
+            {selectedTypes.includes(value) && <Check size={16} />}
+          </button>
+        ))}
       </div>
     </div>
+
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <input
+        type="number"
+        placeholder="Ismétlések"
+        className="border border-gray-200 rounded-lg px-4 py-3 w-full text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        value={repetitions || ''}
+        onChange={e => setRepetitions(Number(e.target.value))}
+      />
+      <input
+        type="number"
+        placeholder="Sorozatok"
+        className="border border-gray-200 rounded-lg px-4 py-3 w-full text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        value={sets || ''}
+        onChange={e => setSets(Number(e.target.value))}
+      />
+      <input
+        type="number"
+        placeholder="Súly (kg)"
+        className="border border-gray-200 rounded-lg px-4 py-3 w-full text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        value={weight || ''}
+        onChange={e => setWeight(Number(e.target.value))}
+      />
+      <input
+        type="number"
+        placeholder="Pihenő (mp)"
+        className="border border-gray-200 rounded-lg px-4 py-3 w-full text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        value={restTime || ''}
+        onChange={e => setRestTime(Number(e.target.value))}
+      />
+    </div>
+
+    <div className="flex flex-col sm:flex-row gap-4 mt-6">
+      <button
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onClick={saveExercise}
+      >
+        Gyakorlat mentése
+      </button>
+      <button
+        onClick={getAIExercise}
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-green-500"
+      >
+        AI Generálás
+      </button>
+    </div>
+  </div>
+</div>
   );
 };
 

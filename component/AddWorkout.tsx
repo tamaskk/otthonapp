@@ -1,3 +1,4 @@
+import { showNotification } from '@/lib/showNotification';
 import React, { useEffect, useState } from 'react';
 
 enum ExerciseType {
@@ -26,6 +27,22 @@ interface Exercise {
   weight: number | null;
   restTime: number | null;
 }
+
+const exerciseTypeHungarian: { name: string; value: ExerciseType }[] = [
+  { name: "Mell", value: ExerciseType.CHEST },
+  { name: "Hát", value: ExerciseType.BACK },
+  { name: "Láb", value: ExerciseType.LEG },
+  { name: "Bicepsz", value: ExerciseType.BICEPS },
+  { name: "Tricepsz", value: ExerciseType.TRICEPS },
+  { name: "Váll", value: ExerciseType.SHOULDER },
+  { name: "Has", value: ExerciseType.ABS },
+  { name: "Funkcionális", value: ExerciseType.FUNCTIONAL },
+  { name: "Kardió", value: ExerciseType.CARDIO },
+  { name: "Fenék", value: ExerciseType.GLUTES },
+  { name: "Mobilitás", value: ExerciseType.MOBILITY },
+  { name: "Nyújtás", value: ExerciseType.STRETCHING },
+  { name: "Egyéb", value: ExerciseType.OTHER }
+];
 
 const AddWorkoutComponent = () => {
   const [workoutName, setWorkoutName] = useState<string>("");
@@ -66,6 +83,8 @@ const AddWorkoutComponent = () => {
       exercises: selectedExercises,
     };
 
+    showNotification("Edzés mentése folyamatban...", "info");
+
     try {
       const response = await fetch("/api/workout", {
         method: "POST",
@@ -81,7 +100,7 @@ const AddWorkoutComponent = () => {
       setSelectedExercises([]);
       setWorkoutTypes([]);
       setExerciseFilter("all");
-      console.log("Workout saved successfully:", data);
+      showNotification("Edzés sikeresen mentve!", "success");
     } catch (error) {
       console.error("Error saving workout:", error);
     } finally {
@@ -104,12 +123,12 @@ const AddWorkoutComponent = () => {
 
   return (
     <div className="max-w-4xl text-black mx-auto p-6 bg-white rounded-xl shadow-md mt-6">
-      <h1 className="text-2xl font-bold mb-4">Add New Workout</h1>
+      <h1 className="text-2xl font-bold mb-4">Új edzés hozzáadása</h1>
 
       {/* Name Input */}
       <input
         type="text"
-        placeholder="Workout Name"
+        placeholder="Edzés neve"
         value={workoutName}
         onChange={e => setWorkoutName(e.target.value)}
         className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400"
@@ -117,7 +136,7 @@ const AddWorkoutComponent = () => {
 
       {/* Description */}
       <textarea
-        placeholder="Workout Description"
+        placeholder="Edzés leírása"
         value={workoutDescription}
         onChange={e => setWorkoutDescription(e.target.value)}
         className="w-full p-3 mb-4 border border-gray-300 rounded-md resize-none h-24 focus:outline-none focus:ring focus:ring-blue-400"
@@ -125,7 +144,7 @@ const AddWorkoutComponent = () => {
 
       {/* Workout Types */}
       <div className="mb-4">
-        <h2 className="font-semibold mb-2">Workout Types</h2>
+        <h2 className="font-semibold mb-2">Edzés típusa</h2>
         <div className="flex flex-wrap gap-2">
           {Object.values(ExerciseType).map(type => (
             <label
@@ -137,7 +156,7 @@ const AddWorkoutComponent = () => {
                 checked={workoutTypes.includes(type)}
                 onChange={() => toggleWorkoutType(type)}
               />
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              { exerciseTypeHungarian.find(t => t.value === type)?.name }
             </label>
           ))}
         </div>
@@ -145,16 +164,16 @@ const AddWorkoutComponent = () => {
 
       {/* Filter Dropdown */}
       <div className="mb-4">
-        <label className="block mb-1 font-semibold text-sm">Filter Exercises by Type:</label>
+        <label className="block mb-1 font-semibold text-sm">Feladat keresése típus szerint:</label>
         <select
           value={exerciseFilter}
           onChange={(e) => setExerciseFilter(e.target.value as ExerciseType | "all")}
           className="w-full sm:w-64 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400"
         >
-          <option value="all">All Types</option>
+          <option value="all">Minden típus</option>
           {Object.values(ExerciseType).map(type => (
             <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              { exerciseTypeHungarian.find(t => t.value === type)?.name }
             </option>
           ))}
         </select>
@@ -162,7 +181,7 @@ const AddWorkoutComponent = () => {
 
       {/* Exercise Selection */}
       <div className="mb-6">
-        <h2 className="font-semibold mb-2">Select Exercises</h2>
+        <h2 className="font-semibold mb-2">Kiválasztott edzések</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-64 overflow-y-auto">
           {filteredExercises.map(exercise => (
             <div
@@ -190,7 +209,7 @@ const AddWorkoutComponent = () => {
         disabled={isSaving}
         className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
       >
-        {isSaving ? "Saving..." : "Save Workout"}
+        {isSaving ? "Mentés folyamatban..." : "Edzés mentése"}
       </button>
     </div>
   );

@@ -41,6 +41,7 @@ interface Workout {
 
 interface WorkoutProgress {
   workoutId: string;
+  _id: string;
   startTime: string;
   currentExerciseIndex: number;
   exerciseProgress: {
@@ -86,7 +87,7 @@ const WorkoutListComponent = () => {
 
   const resumeWorkout = () => {
     if (!progress) return;
-    router.push(`/current-workout?workoutId=${progress.workoutId}`);
+    router.push(`/current-workout?workoutId=${progress._id}`);
     setShowResumeModal(false);
   };
 

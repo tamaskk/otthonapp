@@ -270,11 +270,6 @@ const WorkoutStartComponent = () => {
     return `https://www.youtube.com/results?search_query=${query}`;
   };
 
-  useEffect(() => {
-    console.log("Current exercise index changed:", currentExerciseIndex);
-    console.log("Current exercise:", workout?.exercises[currentExerciseIndex]);
-  }, [currentExerciseIndex, workout, progress]);
-
   if (!workout || !progress) {
     return <div className="p-4 text-center">Betöltés...</div>;
   }
@@ -403,12 +398,6 @@ const WorkoutStartComponent = () => {
                 {JSON.stringify(exerciseProgress)})
               </div>
             )}
-            {/* <button
-              onClick={() => addSet(currentExercise._id)}
-              className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
-            >
-              + Új szett hozzáadása
-            </button> */}
           </div>
         </div>
 

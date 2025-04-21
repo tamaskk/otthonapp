@@ -1,5 +1,5 @@
 import WorkoutStartComponent from "@/component/CurrentWorkoutComponent";
-import { Sidebar } from "lucide-react";
+import Sidebar from "@/component/sidebar";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 
