@@ -137,7 +137,7 @@ const TvList = () => {
     { channel: 355, name: 'MTV Hits', type: ChannelType.Zene },
     { channel: 356, name: 'MTV European', type: ChannelType.Zene },
     { channel: 357, name: 'MTV 90s', type: ChannelType.Zene },
-    { channel: 359, name: 'MTV Line HD', type: ChannelType.Zene },
+    { channel: 358, name: 'MTV Line HD', type: ChannelType.Zene },
     { channel: 359, name: 'MTV 00', type: ChannelType.Zene },
     { channel: 360, name: 'Magyar Slugger TV', type: ChannelType.Sport },
     { channel: 361, name: 'Dick TV', type: ChannelType.Szórakoztató },

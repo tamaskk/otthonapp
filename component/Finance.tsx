@@ -154,7 +154,7 @@ const Finance: React.FC = () => {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col items-center bg-gray-50">
+<div className="max-h-[100dvh] h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-gray-100 text-gray-900 p-6 sm:p-8">
       {/* Header and Controls */}
       <div className="w-full max-w-2xl pt-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
@@ -196,7 +196,7 @@ const Finance: React.FC = () => {
             {/* Toggle Buttons */}
 
             {/* Form or Search */}
-            <div className="bg-gray-100 p-6 rounded-md shadow-md text-black space-y-4 sticky top-0 z-10">
+            <div className="bg-gray-100 w-screen p-6 rounded-md shadow-md text-black space-y-4 sticky top-0 z-10">
               {state === "add" ? (
                 <div onSubmit={saveFinance} className="space-y-4">
                   <div className="flex flex-row items-center justify-between w-full">

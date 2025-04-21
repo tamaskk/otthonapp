@@ -139,7 +139,7 @@ enum ChannelType {
     { channel: 355, name: 'MTV Hits', type: ChannelType.Zene },
     { channel: 356, name: 'MTV European', type: ChannelType.Zene },
     { channel: 357, name: 'MTV 90s', type: ChannelType.Zene },
-    { channel: 359, name: 'MTV Line HD', type: ChannelType.Zene },
+    { channel: 358, name: 'MTV Live HD', type: ChannelType.Zene },
     { channel: 359, name: 'MTV 00', type: ChannelType.Zene },
     { channel: 360, name: 'Magyar Slugger TV', type: ChannelType.Sport },
     { channel: 361, name: 'Dick TV', type: ChannelType.Szórakoztató },
@@ -191,13 +191,13 @@ enum ChannelType {
     const [searchType, setSearchType] = useState<ChannelType | ''>('')
 
 
-    useEffect(() => {
-      fetch("/api/porthu?channels=2&channels=27") // TV2 és M4 Sport
-        .then(res => res.json())
-        .then(data => {
-          console.log("Műsor adatok:", data);
-        });
-    }, []);
+    // useEffect(() => {
+    //   fetch("/api/porthu?channels=2&channels=27") // TV2 és M4 Sport
+    //     .then(res => res.json())
+    //     .then(data => {
+    //       console.log("Műsor adatok:", data);
+    //     });
+    // }, []);
   
     const filteredList = useMemo(() => {
       return list.filter((channel) => {

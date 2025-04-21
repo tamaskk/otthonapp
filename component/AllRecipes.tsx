@@ -89,7 +89,7 @@ const AllRecipes: React.FC = () => {
       <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">          Receptek
         </h1>
 
-        <div className="bg-gray-100 p-6 w-[90%] rounded-md shadow-md text-black space-y-4">
+        <div className="bg-gray-100 mb-2 p-6 w-[90%] rounded-md shadow-md text-black space-y-4">
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
