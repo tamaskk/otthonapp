@@ -219,7 +219,7 @@ const ShoppingList = () => {
     const data = await res.json();
     setShippingList([...shippingList, data]);
     setOriginalList([...originalList, data]);
-    setAddItemModal(false);
+    // setAddItemModal(false);
     showNotification('Sikeresen hozzáadtad az elemet!', 'success');
   };
 
