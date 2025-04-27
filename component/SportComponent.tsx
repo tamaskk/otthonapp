@@ -1,233 +1,346 @@
-import React, { useEffect, useState } from 'react';
-
-const LeagueTypes = {
-  BELGIUM1: 'be.1',
-  GERMAN1: 'de.1',
-  ENGLAND1: 'en.1',
-  ENGLAND2: 'en.2',
-  SPAIN1: 'es.1',
-  FRANCE1: 'fr.1',
-  ITALY1: 'it.1',
-  NETHERLANDS1: 'nl.1',
-  PORTUGAL1: 'pt.1',
-  TURKEY1: 'tr.1',
-  CHAMPIONSLEAGUE: 'uefa.cl',
-} as const;
-
-type LeagueType = typeof LeagueTypes[keyof typeof LeagueTypes];
+import React, { useEffect, useState } from "react";
+import { list } from "@/db/TVList";
+import { combinedTeamsSearchMap, pairedTeams } from "@/db/footballs";
+import { leagueWithIds } from "@/db/football";
 
 interface Match {
   date: string;
   round: string;
+  score?: {
+    ft: number[];
+    ht: number[];
+  };
   team1: string;
   team2: string;
   time: string;
   sport?: string;
   country?: string;
+  channel?: string;
 }
 
-const leagueFlags: Record<LeagueType, string> = {
-  'be.1': '🇧🇪',
-  'de.1': '🇩🇪',
-  'en.1': '🏴',
-  'en.2': '🏴',
-  'es.1': '🇪🇸',
-  'fr.1': '🇫🇷',
-  'it.1': '🇮🇹',
-  'nl.1': '🇳🇱',
-  'pt.1': '🇵🇹',
-  'tr.1': '🇹🇷',
-  'uefa.cl': '🏆',
-};
+enum ChannelType {
+  Közszolgálati = "Közszolgálati",
+  Sport = "Sport",
+  Zene = "Zene",
+  UNKNOWN = "UNKNOWN",
+  Film = "Film",
+  Gyerek = "Gyerek",
+  Ismeretterjesztő = "Ismeretterjesztő",
+  Szórakoztató = "Szórakoztató",
+  Híradó = "Híradó",
+  Dokumentum = "Dokumentum",
+  SzórakoztatóFilm = "SzórakoztatóFilm",
+  Gasztronómia = "Gasztronómia",
+}
 
 const SportComponent: React.FC = () => {
-  const [choosenLeagues, setChoosenLeagues] = useState<LeagueType[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [choosenLeagues, setChoosenLeagues] = useState<any[]>([]);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [sportChannels, setSportChannels] = useState<any[]>([]);
+  const [tvPrograms, setTVPrograms] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [channelNames, setChannelNames] = useState<
+    {
+      name: string;
+      id: string;
+    }[]
+  >([]);
+  const [isLeagueChooserOpen, setIsLeagueChooserOpen] = useState(false); // New state for toggling
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  ); // Default to today in YYYY-MM-DD
 
-  const leagueTypesInArray = Object.values(LeagueTypes);
+// Load leagues from localStorage on component mount
+useEffect(() => {
+  const storedLeagues = localStorage.getItem("choosenLeagues");
+  if (storedLeagues) {
+    setChoosenLeagues(JSON.parse(storedLeagues));
+  }
+}, []);
 
-  const getChoosenLeagues = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const today = new Date();
-      const todayStr = today.toISOString().split('T')[0];
-
-      const year = today.getFullYear();
-      const month = today.getMonth() + 1;
-      const seasonStartYear = month >= 7 ? year : year - 1;
-      const seasonEndYear = seasonStartYear + 1;
-      const seasonFormat = `${seasonStartYear}-${seasonEndYear.toString().slice(-2)}`;
-
-      const filteredMatches: Match[] = [];
-
-      for (const league of choosenLeagues) {
-        const url = `https://raw.githubusercontent.com/openfootball/football.json/master/${seasonFormat}/${league}.json`;
-
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`Failed to fetch ${league} data`);
-          const data = await response.json();
-
-          const allMatches = data.matches || [];
-
-          const upcomingOrTodayMatches = allMatches
-            .filter((match: any) => match.date >= todayStr)
-            .map((match: any): Match => ({
-              date: match.date,
-              round: match.round || 'Unknown Round',
-              team1: match.team1 || 'TBD',
-              team2: match.team2 || 'TBD',
-              time: match.time || 'TBD',
-              country: league,
-              sport: 'Football',
-            }));
-
-          filteredMatches.push(...upcomingOrTodayMatches);
-        } catch (err) {
-          console.error(`Error fetching ${league}:`, err);
-        }
-      }
-
-      const sortedMatches = filteredMatches.sort((a, b) => {
-        const dateTimeA = new Date(`${a.date}T${a.time}`);
-        const dateTimeB = new Date(`${b.date}T${b.time}`);
-        return dateTimeA.getTime() - dateTimeB.getTime();
-      });
-
-      setMatches(sortedMatches);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to fetch matches. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+// Sync choosenLeagues with localStorage whenever it changes
+useEffect(() => {
+  localStorage.setItem("choosenLeagues", JSON.stringify(choosenLeagues));
+}, [choosenLeagues]);
 
   useEffect(() => {
-    if (choosenLeagues.length > 0) {
-      getChoosenLeagues();
-    } else {
-      setMatches([]);
-    }
-  }, [choosenLeagues]);
+    const getMatches = async () => {
+      const url =
+        `https://www.sofascore.com/api/v1/sport/football/scheduled-events/${selectedDate}`
 
-  const leagueName = (league: LeagueType) => {
-    switch (league) {
-      case LeagueTypes.BELGIUM1:
-        return `Belgium Pro League ${leagueFlags[league]}`;
-      case LeagueTypes.GERMAN1:
-        return `Bundesliga ${leagueFlags[league]}`;
-      case LeagueTypes.ENGLAND1:
-        return `Premier League ${leagueFlags[league]}`;
-      case LeagueTypes.ENGLAND2:
-        return `Championship ${leagueFlags[league]}`;
-      case LeagueTypes.SPAIN1:
-        return `La Liga ${leagueFlags[league]}`;
-      case LeagueTypes.FRANCE1:
-        return `Ligue 1 ${leagueFlags[league]}`;
-      case LeagueTypes.ITALY1:
-        return `Serie A ${leagueFlags[league]}`;
-      case LeagueTypes.NETHERLANDS1:
-        return `Eredivisie ${leagueFlags[league]}`;
-      case LeagueTypes.PORTUGAL1:
-        return `Primeira Liga ${leagueFlags[league]}`;
-      case LeagueTypes.TURKEY1:
-        return `Süper Lig ${leagueFlags[league]}`;
-      case LeagueTypes.CHAMPIONSLEAGUE:
-        return `Champions League ${leagueFlags[league]}`;
-      default:
-        return league;
-    }
-  };
+      const idsOfLeagues = choosenLeagues.map((league) => league.id);
 
-  const groupedMatches = matches.reduce<Record<string, Match[]>>((acc, match) => {
-    if (!acc[match.date]) acc[match.date] = [];
-    acc[match.date].push(match);
-    return acc;
-  }, {});
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+
+        // Separate matches into two groups
+        const activeMatches = result.events
+          .filter((match: any) => {
+            const leagueId = match.tournament.uniqueTournament.id;
+            return idsOfLeagues.includes(leagueId) && match.status.code !== 100;
+          })
+          .sort((a: any, b: any) => a.startTimestamp - b.startTimestamp);
+
+        const finishedMatches = result.events
+          .filter((match: any) => {
+            const leagueId = match.tournament.uniqueTournament.id;
+            return idsOfLeagues.includes(leagueId) && match.status.code === 100;
+          })
+          .sort((a: any, b: any) => a.startTimestamp - b.startTimestamp);
+
+        // Concatenate active matches followed by finished matches
+        const filteredMatches = [...activeMatches, ...finishedMatches];
+
+        setMatches(filteredMatches);
+
+        console.log("Filtered Matches:", filteredMatches);
+        console.log("All Events:", result.events);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+    getMatches();
+  }, [choosenLeagues, selectedDate]);
+
+    // Handle date change (arrow buttons)
+    const changeDate = (direction: "prev" | "next") => {
+      const currentDate = new Date(selectedDate);
+      const newDate = new Date(currentDate);
+      newDate.setDate(currentDate.getDate() + (direction === "next" ? 1 : -1));
+      setSelectedDate(newDate.toISOString().split("T")[0]);
+    };
+  
+    // Handle direct date input
+    const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        setSelectedDate(value);
+      }
+    };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Sport</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          Football Match Viewer
+        </h1>
 
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Válassz ligát</h2>
-          </div>
-
-          {error && <p className="text-red-500 mb-4">{error}</p>}
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {leagueTypesInArray.map((league) => {
-              const isSelected = choosenLeagues.includes(league);
-              return (
-                <button
-                  key={league}
-                  className={`relative flex items-center px-4 py-3 rounded-lg transition-all ${
-                    isSelected ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'
-                  } hover:bg-green-400 hover:text-white`}
-                  onClick={() => {
-                    setChoosenLeagues((prev) =>
-                      prev.includes(league)
-                        ? prev.filter((l) => l !== league)
-                        : [...prev, league]
-                    );
-                  }}
+        <div className="bg-white rounded-lg shadow-lg mb-6">
+          <div className="flex items-center justify-between p-6">
+            <h2 className="text-xl font-semibold text-gray-700">
+              Select Leagues
+            </h2>
+            <button
+              className="text-gray-600 hover:text-gray-800 focus:outline-none"
+              onClick={() => setIsLeagueChooserOpen(!isLeagueChooserOpen)}
+            >
+              {isLeagueChooserOpen ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <span className="flex-1 text-center">
-                    {leagueName(league)}
-                  </span>
-                </button>
-              );
-            })}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 15l7-7 7 7"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              )}
+            </button>
           </div>
+
+          {isLeagueChooserOpen && (
+            <div className="p-6 pt-0">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-600">
+                  Choose your leagues
+                </h3>
+              </div>
+
+              {error && <p className="text-red-500 mb-4">{error}</p>}
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {leagueWithIds.map((league) => {
+                  const isSelected = choosenLeagues.includes(league);
+                  return (
+                    <button
+                      key={league.id}
+                      className={`relative flex items-center px-4 py-3 rounded-lg transition-all ${
+                        isSelected
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-800"
+                      } hover:bg-green-400 hover:text-white`}
+                      onClick={() => {
+                        if (isSelected) {
+                          setChoosenLeagues(
+                            choosenLeagues.filter((l) => l !== league)
+                          );
+                          localStorage.setItem(
+                            "choosenLeagues",
+                            JSON.stringify(
+                              choosenLeagues.filter((l) => l !== league)
+                            )
+                          );
+                        } else {
+                          setChoosenLeagues([...choosenLeagues, league]);
+                          localStorage.setItem(
+                            "choosenLeagues",
+                            JSON.stringify([...choosenLeagues, league])
+                          );
+                        }
+                      }}
+                    >
+                      <span className="absolute top-1 left  left-1 text-sm">
+                        {league.flag}
+                      </span>
+                      <span className="flex-1 text-center">{league.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Upcoming Matches</h2>
+          <div className="flex flex-row items-center justify-between mb-5">
+          <h2 className="text-lg font-semibold text-gray-700 flex flex-row items-center justify-between flex-nowrap">
+            Upcoming Matches
+          </h2>
+          <div className="flex items-center justify-center">
+          <button
+              onClick={() => changeDate("prev")}
+              className="p-2 rounded-l-sm bg-gray-200 hover:bg-gray-300 focus:outline-none"
+              aria-label="Previous day"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            {/* <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateInput}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            /> */}
+            <span className="text-black bg-gray-200 py-[6px]">
+              {new Date(selectedDate).toLocaleDateString("hu-HU", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </span>
+            <button
+              onClick={() => changeDate("next")}
+              className="p-2 bg-gray-200 rounded-r-sm hover:bg-gray-300 focus:outline-none"
+              aria-label="Next day"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+          </div>
           {matches.length === 0 ? (
-            <p className="text-gray-500">No matches found for selected leagues.</p>
+            <p className="text-gray-500">
+              No matches found for selected leagues.
+            </p>
           ) : (
-            <div className="space-y-6">
-              {Object.entries(groupedMatches).map(([date, dayMatches]) => (
-                <div key={date}>
-                  <div className="border-t pt-4 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-600">
-                      {new Date(date).toLocaleDateString('hu-HU', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        weekday: 'long',
-                      })}
-                    </h3>
-                  </div>
-                  <div className="space-y-4">
-                    {dayMatches.map((match, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center">
-                          <span className="text-lg mr-2">
-                            {match.country && leagueFlags[match.country as LeagueType]}
+            <div className="space-y-4">
+              {matches.map((match, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <span className="text-lg mr-2 text-black flex flex-col items-center justify-center gap-1">
+                      {
+                        leagueWithIds.find(
+                          (league) =>
+                            league.id === match.tournament.uniqueTournament.id
+                        )?.flag
+                      }
+                      {
+                        match.status.type === "inprogress" && (
+                          <span className="text-white text-sm font-light p-1 rounded-lg bg-yellow-300">
+                            ÉLŐ
                           </span>
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {match.team1} vs {match.team2}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {match.round} | {match.time}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-lg">⚽</span>
-                      </div>
-                    ))}
+                        )
+                      }
+                      {
+                        match.status.code === 100 && (
+                          <span className="text-white text-sm font-light p-1 rounded-lg bg-gray-400">
+                            VÉGE
+                          </span>
+                        )
+                      }
+                    </span>
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        {match?.homeTeam.name} vs {match.awayTeam.name}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {match.roundInfo.round}. forduló |{" "}
+                        {new Date(
+                          match.startTimestamp * 1000
+                        ).toLocaleTimeString("en-UK", {
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}{" "}
+                        | {new Date(match.startTimestamp * 1000).toDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right flex gap-4">
+                    {match.status.type === "inprogress" && (
+                      <span className="text-sm font-bold text-green-500 flex-nowrap">
+                        {match.homeScore.current} - {match.awayScore.current}
+                      </span>
+                    )}
+                    <span className="text-lg">⚽</span>
                   </div>
                 </div>
               ))}
