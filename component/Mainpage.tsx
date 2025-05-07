@@ -71,13 +71,13 @@ const MainPage = () => {
             <div key={index} className="relative">
               <button
                 onClick={() => handleItemClick(item)}
-                className="w-full flex items-center justify-between p-6 bg-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
+                className="w-full flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
               >
                 <div className="flex items-center">
                   <div className="p-3 rounded-full bg-blue-100 text-blue-600">
                     {item.icon}
                   </div>
-                  <span className="ml-4 text-lg font-semibold text-gray-700">{item.name}</span>
+                  <span className="ml-4 text-md font-semibold text-gray-700">{item.name}</span>
                 </div>
                 {item.subItems && (
                   <KeyboardArrowDownIcon 
