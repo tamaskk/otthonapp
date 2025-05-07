@@ -13,15 +13,11 @@ declare module "next-auth" {
   }
 }
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("NEXTAUTH_SECRET environment variable is not set.");
-}
-
 export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: 'otthon_app_jwt_secret_2024_secure_key_8x9y2z1w',
   providers: [
     CredentialsProvider({
       name: "Credentials",

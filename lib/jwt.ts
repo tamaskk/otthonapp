@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'otthon_app_jwt_secret_2024_secure_key_8x9y2z1w';
+const JWT_SECRET = 'otthon_app_jwt_secret_2024_secure_key_8x9y2z1w';
 
 export interface JWTPayload {
   userId: string;
