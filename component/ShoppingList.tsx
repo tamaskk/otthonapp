@@ -5,6 +5,9 @@ import { toast, Bounce } from 'react-toastify';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewModeSwitch from './ViewModeSwitch';
 import Modal from './Modal';
 
 interface ShoppingListItem {
@@ -24,6 +27,8 @@ const ShoppingList = () => {
   const [originalList, setOriginalList] = useState<
     { _id: string; name: string; quantity: number; shop: string; price: number; note: string }[]
   >([]);
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid');
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const shops = [
     'Tesco',
     'Spar',
@@ -230,13 +235,30 @@ const ShoppingList = () => {
     }
   };
 
+  const toggleItemExpand = (id: string) => {
+    const newExpandedItems = new Set(expandedItems);
+    if (newExpandedItems.has(id)) {
+      newExpandedItems.delete(id);
+    } else {
+      newExpandedItems.add(id);
+    }
+    setExpandedItems(newExpandedItems);
+  };
+
   return (
     <>
       <div className="max-h-[100dvh] flex-1 h-screen overflow-hidden flex flex-col relative bg-gray-50">
-        <AddIcon
-          className="absolute top-5 left-5 text-black cursor-pointer hover:scale-105 transition-transform duration-200 ease-in-out z-10"
-          onClick={() => setAddItemModal(!addItemModal)}
-        />
+        <div className="absolute top-5 left-5 flex gap-2">
+          <AddIcon
+            className="text-black cursor-pointer hover:scale-105 transition-transform duration-200 ease-in-out z-10"
+            onClick={() => setAddItemModal(!addItemModal)}
+          />
+          <ViewModeSwitch
+            onViewChange={(mode) => setViewMode(mode)}
+            storageKey="shopping-list-view-mode"
+            defaultView={viewMode}
+          />
+        </div>
         <div className="flex flex-col items-center pt-5">
           <h1 className="text-3xl font-bold text-gray-800 mb-5">
             Bevásárló lista
@@ -277,40 +299,105 @@ const ShoppingList = () => {
               key={index}
               className={`relative ${
                 item.done ? 'bg-green-100' : 'bg-white'
-              } border border-gray-200 p-5 rounded-xl shadow-sm text-gray-800 mt-4 w-[90%] max-w-xl transition hover:shadow-md`}
+              } border border-gray-200 p-5 rounded-xl shadow-sm text-gray-800 mt-4 w-[90%] max-w-xl transition-all duration-300 ease-in-out`}
             >
-              <button
-                onClick={() => handleDelete(item._id)}
-                className="absolute top-3 right-3 text-red-600 hover:text-red-800"
-              >
-                <DeleteIcon className="w-6 h-6" />
-              </button>
-              <button
-                onClick={() => setDone(item._id)}
-                className="absolute top-3 right-12 text-green-600 hover:text-green-800"
-              >
-                <CheckIcon className="w-6 h-6" />
-              </button>
-              <h1 className="text-2xl font-bold mb-1">{item.name}</h1>
-              <div className="text-sm text-gray-500 mb-3">Bolt: {item.shop}</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium text-gray-700">Mennyiség:</span>
-                  <p className="text-gray-900">
-                    {item.quantity} {item.quantityUnit}
-                  </p>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700">Ár:</span>
-                  <p className="text-gray-900">{item.price} Ft</p>
-                </div>
-                {item.note && (
-                  <div className="col-span-2">
-                    <span className="font-medium text-gray-700">Megjegyzés:</span>
-                    <p className="text-gray-900">{item.note}</p>
+              {viewMode === 'table' ? (
+                <>
+                  <div 
+                    className="flex items-center justify-between cursor-pointer"
+                    onClick={() => toggleItemExpand(item._id)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <h1 className="text-xl font-bold">{item.name}</h1>
+                      <span className="text-gray-600">
+                        {item.quantity} {item.quantityUnit}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(item._id);
+                        }}
+                        className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                      >
+                        <DeleteIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDone(item._id);
+                        }}
+                        className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                      >
+                        <CheckIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
+                  <div
+                    className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
+                      expandedItems.has(item._id)
+                        ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-200'
+                        : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="min-h-0">
+                      <div className="text-sm text-gray-500 mb-3">Bolt: {item.shop}</div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Ár:</span>
+                          <p className="text-gray-900">{item.price} Ft</p>
+                        </div>
+                        {item.note && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-gray-700">Megjegyzés:</span>
+                            <p className="text-gray-900">{item.note}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex justify-between items-start">
+                    <h1 className="text-2xl font-bold">{item.name}</h1>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                      >
+                        <DeleteIcon className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={() => setDone(item._id)}
+                        className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                      >
+                        <CheckIcon className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">Bolt: {item.shop}</div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">Mennyiség:</span>
+                      <p className="text-gray-900">
+                        {item.quantity} {item.quantityUnit}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Ár:</span>
+                      <p className="text-gray-900">{item.price} Ft</p>
+                    </div>
+                    {item.note && (
+                      <div className="col-span-2">
+                        <span className="font-medium text-gray-700">Megjegyzés:</span>
+                        <p className="text-gray-900">{item.note}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

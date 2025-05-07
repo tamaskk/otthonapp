@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ToastContainer } from "react-toastify";
 import { useState, useEffect } from "react";
+import SettingsComponent from "@/component/SettingsComponent";
 
 const Settings = () => {
   const { data: session, status } = useSession();
@@ -42,32 +43,7 @@ const Settings = () => {
     <div className="bg-white max-h-[100dvh] flex-1 h-screen overflow-y-auto relative">
       <ToastContainer />
       <Sidebar />
-      <div className="p-8 text-black">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Notifications</h2>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={requestNotificationPermission}
-              disabled={notificationPermission === "granted"}
-              className={`px-4 py-2 rounded-md ${
-                notificationPermission === "granted"
-                  ? "bg-green-500 text-white cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              }`}
-            >
-              {notificationPermission === "granted"
-                ? "Notifications Enabled"
-                : "Enable Notifications"}
-            </button>
-            <span className="text-gray-600">
-              {notificationPermission === "granted"
-                ? "You will receive notifications for new shopping list items"
-                : "Enable notifications to get alerts for new shopping list items"}
-            </span>
-          </div>
-        </div>
-      </div>
+      <SettingsComponent />
     </div>
   );
 };
