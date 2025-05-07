@@ -3,11 +3,23 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import SidebarItems from "./SidebarItems";
-
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useRouter } from 'next/router';
+import { signOut } from "next-auth/react";
 const Sidebar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [trainingOpen, setTrainingOpen] = useState(false);
   const [recipeOpen, setRecipeOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.push("/login");
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
 
   return (
     <div className="relative z-[100000000000]">
@@ -22,8 +34,9 @@ const Sidebar = () => {
       >
         <div className="flex flex-col py-10 h-full text-black">
           <h2 className="text-2xl font-bold text-center mb-6">Otthon App</h2>
-          <ul className="space-y-4 px-6">
-            <SidebarItems items={[]} mainUrl="/" name="Bevásárló lista" />
+          <ul className="space-y-4 px-6 flex-grow">
+            <SidebarItems items={[]} mainUrl="/mainpage" name="Főoldal" />
+            <SidebarItems items={[]} mainUrl="/shopping-list" name="Bevásárló lista" />
             <SidebarItems
               items={[
                 { name: "Minden recept", url: "/all-recipes" },
@@ -56,7 +69,19 @@ const Sidebar = () => {
             <SidebarItems items={[]} mainUrl="/movies" name="Filmek/Sorozatok" />
             <SidebarItems items={[]} mainUrl="/notes" name="Jegyzetek" />
             <SidebarItems items={[]} mainUrl="/passwords" name="Jelszavak" />
+            <SidebarItems items={[]} mainUrl="/settings" name="Beállítások" />
           </ul>
+          
+          {/* Logout Button */}
+          <div className="px-6 py-4 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center w-full gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+            >
+              <LogoutIcon />
+              <span>Kijelentkezés</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

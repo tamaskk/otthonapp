@@ -219,8 +219,15 @@ const ShoppingList = () => {
     const data = await res.json();
     setShippingList([...shippingList, data]);
     setOriginalList([...originalList, data]);
-    // setAddItemModal(false);
     showNotification('Sikeresen hozzáadtad az elemet!', 'success');
+
+    // Send push notification if permission is granted
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      new Notification("New Shopping List Item", {
+        body: `Added ${newItem.name} to your shopping list`,
+        icon: "/favicon.ico",
+      });
+    }
   };
 
   return (
