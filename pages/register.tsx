@@ -60,6 +60,12 @@ export default function RegisterPage() {
   };
 
   return (
+    <div>
+      Mizu?
+    </div>
+  )
+
+  return (
     <>
       <Head>
         <title>Regisztráció</title>
