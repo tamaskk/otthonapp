@@ -36,6 +36,7 @@ const MainPage = () => {
       path: '/add-exercise',
       subItems: [
         { name: 'Edzés hozzáadása', path: '/add-exercise' },
+        { name: 'Edzés api', path: '/api-exercises'},
         { name: 'Edzésterv szerkesztése', path: '/edit-workout' },
         { name: 'Edzésterv létrehozása', path: '/add-workout' },
         { name: 'Edzésterv elkezdése', path: '/start-workout' },

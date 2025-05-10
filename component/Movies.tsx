@@ -191,14 +191,14 @@ const Movies = () => {
 
   return (
     <div className="p-4 max-w-6xl mx-auto max-h-[100dvh] flex-1 h-full flex flex-col text-white">
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-5 left-4">
         <ViewModeSwitch
           onViewChange={setViewMode}
           storageKey="movies-view-mode"
           defaultView="grid"
         />
       </div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+      <h1 className="text-2xl font-bold text-gray-800 mb-8 text-center">
         Film és sorozat kereső
       </h1>
       <div className="flex flex-wrap gap-4 justify-center mb-6 sticky top-0 bg-white z-10 p-4">

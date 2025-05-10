@@ -1,6 +1,7 @@
 import { showNotification } from '@/lib/showNotification';
 import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
+import ViewModeSwitch from './ViewModeSwitch';
 
 interface Recipe {
   id: number;
@@ -22,21 +23,15 @@ const AllRecipes: React.FC = () => {
   const [searchName, setSearchName] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [portion, setPortion] = useState<number>(1);
-  const [isGridView, setIsGridView] = useState<boolean>(true);
+  const [isGridView, setIsGridView] = useState<'grid' | 'table'>('grid');
 
   useEffect(() => {
     // Load view preference from localStorage
     const savedView = localStorage.getItem('recipeViewPreference');
     if (savedView) {
-      setIsGridView(savedView === 'grid');
+      setIsGridView(savedView as 'grid' | 'table');
     }
   }, []);
-
-  const toggleView = () => {
-    const newView = !isGridView;
-    setIsGridView(newView);
-    localStorage.setItem('recipeViewPreference', newView ? 'grid' : 'list');
-  };
 
   useEffect(() => {
     let filteredList = [...allRecipes];
@@ -102,7 +97,7 @@ const AllRecipes: React.FC = () => {
   return (
     <div className="bg-white max-h-[100dvh] flex-1 h-full overflow-hidden p-6 flex flex-col items-center justify-start">
       <div className="absolute top-6 left-6 flex items-center space-x-2">
-        <span className={`text-sm ${isGridView ? 'text-blue-600' : 'text-gray-500'}`}>Rács</span>
+        {/* <span className={`text-sm ${isGridView ? 'text-blue-600' : 'text-gray-500'}`}>Rács</span>
         <button
           onClick={toggleView}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -115,7 +110,12 @@ const AllRecipes: React.FC = () => {
             }`}
           />
         </button>
-        <span className={`text-sm ${!isGridView ? 'text-blue-600' : 'text-gray-500'}`}>Lista</span>
+        <span className={`text-sm ${!isGridView ? 'text-blue-600' : 'text-gray-500'}`}>Lista</span> */}
+        <ViewModeSwitch
+          storageKey="recipeViewPreference"
+          onViewChange={(mode) => setIsGridView(mode as 'grid' | 'table')}
+          defaultView={isGridView}
+        />
       </div>
 
       <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Receptek</h1>
@@ -147,7 +147,7 @@ const AllRecipes: React.FC = () => {
 
       {/* Scrollable Recipes Container */}
       <div className="flex-1 w-screen overflow-y-auto px-4 md:px-0">
-        {isGridView ? (
+        {isGridView === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto py-6">
             {recipes.map((recipe) => (
               <div
@@ -214,15 +214,17 @@ const AllRecipes: React.FC = () => {
                           {type}
                         </span>
                       ))}
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-2">
                       {recipe.difficulties.map((diff, idx) => (
                         <span
-                          key={idx}
-                          className="bg-green-100 text-green-700 text-sm px-2 py-1 rounded-full"
+                        key={idx}
+                        className="bg-green-100 text-green-700 text-sm px-2 py-1 rounded-full"
                         >
                           {diff}
                         </span>
                       ))}
-                    </div>
+                      </div>
                   </div>
                   <div className="text-right">
                     <span className="bg-yellow-100 text-yellow-700 text-sm px-2 py-1 rounded-full">

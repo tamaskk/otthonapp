@@ -51,6 +51,7 @@ const Sidebar = () => {
             <SidebarItems
               items={[
                 { name: "Edzés hozzáadása", url: "/add-exercise" },
+                { name: "Edzés API", url: "/api-exercises" },
                 { name: "Edzés beállítások", url: "/exercise-settings" },
                 { name: "Edzésterv létrehozása", url: "/add-workout" },
                 { name: "Edzésterv szerkesztése", url: "/edit-workout" },
