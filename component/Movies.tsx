@@ -69,10 +69,14 @@ const Movies = () => {
     poster: "",
     whereToWatch: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingGenres, setIsLoadingGenres] = useState(false);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   const years = Array.from({ length: 46 }, (_, i) => i + 1980);
 
   useEffect(() => {
     if (type === "saved") return;
+    setIsLoadingGenres(true);
     fetch(`https://api.themoviedb.org/3/genre/${type}/list?language=en`, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -86,12 +90,16 @@ const Movies = () => {
           title: translations[genre.name] || genre.name,
         }));
         setGenres(translatedGenres);
+      })
+      .finally(() => {
+        setIsLoadingGenres(false);
       });
   }, [type]);
 
   useEffect(() => {
     const { genre, releaseYear, rating, page } = filters;
     if (type === "saved") return;
+    setIsLoading(true);
     let url = `https://api.themoviedb.org/3/discover/${type}?page=${page}`;
 
     if (genre) url += `&with_genres=${genre}`;
@@ -109,6 +117,9 @@ const Movies = () => {
         setItems(data.results);
         setTotalPages(data.total_pages);
         setTotalResults(data.total_results);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, [filters, type]);
 
@@ -117,15 +128,22 @@ const Movies = () => {
   };
 
   const getSavedItems = async () => {
-    const response = await fetch("/api/movies", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: 'include',
-    });
-    const data = await response.json();
-    setSavedItems(data.savedItems);
+    setIsLoadingSaved(true);
+    try {
+      const response = await fetch("/api/movies", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: 'include',
+      });
+      const data = await response.json();
+      setSavedItems(data.savedItems);
+    } catch (error) {
+      showNotification("Hiba történt az adatok betöltése során!", "error");
+    } finally {
+      setIsLoadingSaved(false);
+    }
   };
 
   const saveItem = async () => {
@@ -190,7 +208,7 @@ const Movies = () => {
   };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto max-h-[100dvh] flex-1 h-full flex flex-col text-white">
+    <div className="p-4 max-w-6xl mx-auto max-h-[100dvh] min-h-[100dvh] flex-1 h-full flex flex-col text-white">
       <div className="absolute top-5 left-4">
         <ViewModeSwitch
           onViewChange={setViewMode}
@@ -286,7 +304,11 @@ const Movies = () => {
       <div className="flex-1 overflow-y-auto">
         {type !== "saved" && viewMode === "grid" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {items?.length > 0 ? (
+            {isLoading ? (
+              <div className="col-span-4 flex justify-center items-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : items?.length > 0 ? (
               items.map((item) => (
                 <div
                   onClick={() => setPickedMovie(item)}
@@ -318,8 +340,12 @@ const Movies = () => {
                 </div>
               ))
             ) : (
-              <div className="col-span-4 text-center text-gray-500">
-                Nincs találat
+              <div className="col-span-4 text-center text-gray-500 min-h-[400px] flex flex-col items-center justify-center">
+                <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-xl font-medium">Nincs találat</p>
+                <p className="text-sm mt-2">Próbáld meg más szűrőkkel vagy oldalakat</p>
               </div>
             )}
           </div>
@@ -338,7 +364,15 @@ const Movies = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {items?.length > 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-center">
+                      <div className="flex justify-center items-center min-h-[200px]">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : items?.length > 0 ? (
                   items.map((item) => (
                     <tr key={item.id} onClick={() => setPickedMovie(item)} className="hover:bg-gray-50 cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -372,8 +406,14 @@ const Movies = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      Nincs találat
+                    <td colSpan={5} className="px-6 py-4 text-center">
+                      <div className="flex flex-col items-center justify-center min-h-[200px]">
+                        <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-lg font-medium text-gray-500">Nincs találat</p>
+                        <p className="text-sm text-gray-400 mt-1">Próbáld meg más szűrőkkel vagy oldalakat</p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -384,7 +424,11 @@ const Movies = () => {
 
         {type === "saved" && viewMode === "grid" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {savedItems?.length > 0 ? (
+            {isLoadingSaved ? (
+              <div className="col-span-4 flex justify-center items-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : savedItems?.length > 0 ? (
               savedItems.map((item) => (
                 <div
                   onClick={() => setPickedSavedMovie(item)}
@@ -414,8 +458,12 @@ const Movies = () => {
                 </div>
               ))
             ) : (
-              <div className="col-span-4 text-center text-gray-500">
-                Nincs találat
+              <div className="col-span-4 text-center text-gray-500 min-h-[400px] flex flex-col items-center justify-center">
+                <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-xl font-medium">Nincs elmentett film vagy sorozat</p>
+                <p className="text-sm mt-2">Keresgélj és ments el filmeket vagy sorozatokat</p>
               </div>
             )}
           </div>
@@ -434,7 +482,15 @@ const Movies = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {savedItems?.length > 0 ? (
+                {isLoadingSaved ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-center">
+                      <div className="flex justify-center items-center min-h-[200px]">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : savedItems?.length > 0 ? (
                   savedItems.map((item) => (
                     <tr key={item.id} onClick={() => setPickedSavedMovie(item)} className="hover:bg-gray-50 cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -468,8 +524,14 @@ const Movies = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      Nincs találat
+                    <td colSpan={5} className="px-6 py-4 text-center">
+                      <div className="flex flex-col items-center justify-center min-h-[200px]">
+                        <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-lg font-medium text-gray-500">Nincs elmentett film vagy sorozat</p>
+                        <p className="text-sm text-gray-400 mt-1">Keresgélj és ments el filmeket vagy sorozatokat</p>
+                      </div>
                     </td>
                   </tr>
                 )}

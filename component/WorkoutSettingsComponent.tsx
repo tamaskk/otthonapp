@@ -62,9 +62,13 @@ const WorkoutSettingsComponent = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchWorkouts = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch("/api/workout");
         const data = await response.json();
@@ -75,6 +79,8 @@ const WorkoutSettingsComponent = () => {
         setWorkouts(data);
       } catch (error) {
         showNotification("Hiba történt az adatok betöltésekor", "error");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -133,6 +139,7 @@ const WorkoutSettingsComponent = () => {
 
   const saveEditedWorkout = async () => {
     if (!selectedWorkout) return;
+    setIsSaving(true);
 
     const editedWorkout = {
       name: selectedWorkout.name,
@@ -171,16 +178,22 @@ const WorkoutSettingsComponent = () => {
       setModalOpen(false);
     } catch (error) {
       showNotification("Hiba történt az edzés mentésekor", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const deleteWorkout = async () => {
     if (!selectedWorkout) return;
+    setIsDeleting(true);
 
     const confirmModal = window.confirm(
       `Biztosan törölni szeretnéd a "${selectedWorkout.name}" edzést?`
     );
-    if (!confirmModal) return;
+    if (!confirmModal) {
+      setIsDeleting(false);
+      return;
+    }
 
     try {
       const response = await fetch(`/api/workout?id=${selectedWorkout._id}`, {
@@ -206,155 +219,186 @@ const WorkoutSettingsComponent = () => {
       setModalOpen(false);
     } catch (error) {
       showNotification("Hiba történt az edzés törlésekor", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
     <div className="p-4 max-w-4xl mx-auto text-black">
-<h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-      Edzés beállítások
-    </h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+        Edzés beállítások
+      </h1>
+      
+      {isLoading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      ) : workouts.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <p className="text-gray-600 text-lg">Még nincsenek edzések.</p>
+          <p className="text-gray-500 mt-2">Kattints a szerkesztés gombra egy új edzés létrehozásához.</p>
+        </div>
+      ) : (
         <div className="grid gap-4">
-        {workouts.map((workout) => (
-          <div
-            key={workout._id}
-            onClick={() => openModal(workout)}
-            className="bg-gray-100 rounded-lg p-4 hover:bg-gray-200 cursor-pointer shadow"
-          >
-            <h3 className="text-lg font-bold">{workout.name}</h3>
-            <p className="text-sm text-gray-600">{workout.description}</p>
-            <p className="text-sm text-gray-600">
-              {workout.types
-                .map(
-                  (type) =>
-                    workoutTypeOptions.find((opt) => opt.value === type)?.name
-                )
-                .join(", ")}
-            </p>
-            <p className="text-sm text-gray-600">
-              Gyakorlatok: {workout.exercises.map((e) => e.name).join(", ")}
-            </p>
-          </div>
-        ))}
-      </div>
+          {workouts.map((workout) => (
+            <div
+              key={workout._id}
+              onClick={() => openModal(workout)}
+              className="bg-gray-100 rounded-lg p-4 hover:bg-gray-200 cursor-pointer shadow"
+            >
+              <h3 className="text-lg font-bold">{workout.name}</h3>
+              <p className="text-sm text-gray-600">{workout.description}</p>
+              <p className="text-sm text-gray-600">
+                {workout.types
+                  .map(
+                    (type) =>
+                      workoutTypeOptions.find((opt) => opt.value === type)?.name
+                  )
+                  .join(", ")}
+              </p>
+              <p className="text-sm text-gray-600">
+                Gyakorlatok: {workout.exercises.map((e) => e.name).join(", ")}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Modal
         handlerFunction={() => setModalOpen(false)}
         state={modalOpen}
-        >
-                      {selectedWorkout && (
-              <div className="space-y-4">
-                <span>
-                  <strong>Edzés neve:</strong>
-                </span>
-                <input
-                  className="w-full border rounded p-2"
-                  value={selectedWorkout.name}
-                  disabled={!isEditing}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                />
-                <span>
-                  <strong>Leírás:</strong>
-                </span>
-                <textarea
-                  className="w-full border rounded p-2"
-                  value={selectedWorkout.description}
-                  disabled={!isEditing}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
-                />
-                <span>
-                  <strong>Típus(ok):</strong>
-                </span>
-                {isEditing ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {workoutTypeOptions.map(({ name, value }) => (
-                      <button
-                        key={value}
-                        className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm ${
-                          selectedWorkout.types.includes(value)
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : "bg-white text-gray-800 border-gray-300"
-                        }`}
-                        onClick={() => toggleWorkoutType(value)}
-                      >
-                        {name}
-                        {selectedWorkout.types.includes(value) && (
-                          <Check size={16} />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p>
-                    {selectedWorkout.types
-                      .map(
-                        (type) =>
-                          workoutTypeOptions.find((opt) => opt.value === type)?.name
-                      )
-                      .join(", ")}
-                  </p>
-                )}
-                <span>
-                  <strong>Gyakorlatok:</strong>
-                </span>
-                {isEditing ? (
-                  <div className="max-h-40 overflow-y-auto">
-                    {availableExercises.map((exercise) => (
-                      <button
-                        key={exercise._id}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-sm mb-2 ${
-                          selectedWorkout.exercises.some(
-                            (e) => e._id === exercise._id
-                          )
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : "bg-white text-gray-800 border-gray-300"
-                        }`}
-                        onClick={() => toggleExercise(exercise)}
-                      >
-                        {exercise.name}
-                        {selectedWorkout.exercises.some(
-                          (e) => e._id === exercise._id
-                        ) && <Check size={16} />}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p>
-                    {selectedWorkout.exercises.map((e) => e.name).join(", ")}
-                  </p>
-                )}
-
-                <div className="flex justify-end space-x-4 mt-4">
-                  {isEditing ? (
-                    <button
-                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                      onClick={saveEditedWorkout}
-                    >
-                      Mentés
-                    </button>
-                  ) : (
-                    <button
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                      Szerkesztés
-                    </button>
-                  )}
+      >
+        {selectedWorkout && (
+          <div className="space-y-4">
+            <span>
+              <strong>Edzés neve:</strong>
+            </span>
+            <input
+              className="w-full border rounded p-2"
+              value={selectedWorkout.name}
+              disabled={!isEditing}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+            />
+            <span>
+              <strong>Leírás:</strong>
+            </span>
+            <textarea
+              className="w-full border rounded p-2"
+              value={selectedWorkout.description}
+              disabled={!isEditing}
+              onChange={(e) =>
+                handleInputChange("description", e.target.value)
+              }
+            />
+            <span>
+              <strong>Típus(ok):</strong>
+            </span>
+            {isEditing ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {workoutTypeOptions.map(({ name, value }) => (
                   <button
-                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                    onClick={deleteWorkout}
+                    key={value}
+                    className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm ${
+                      selectedWorkout.types.includes(value)
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-800 border-gray-300"
+                    }`}
+                    onClick={() => toggleWorkoutType(value)}
                   >
+                    {name}
+                    {selectedWorkout.types.includes(value) && (
+                      <Check size={16} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p>
+                {selectedWorkout.types
+                  .map(
+                    (type) =>
+                      workoutTypeOptions.find((opt) => opt.value === type)?.name
+                  )
+                  .join(", ")}
+              </p>
+            )}
+            <span>
+              <strong>Gyakorlatok:</strong>
+            </span>
+            {isEditing ? (
+              <div className="max-h-40 overflow-y-auto">
+                {availableExercises.map((exercise) => (
+                  <button
+                    key={exercise._id}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-sm mb-2 ${
+                      selectedWorkout.exercises.some(
+                        (e) => e._id === exercise._id
+                      )
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-800 border-gray-300"
+                    }`}
+                    onClick={() => toggleExercise(exercise)}
+                  >
+                    {exercise.name}
+                    {selectedWorkout.exercises.some(
+                      (e) => e._id === exercise._id
+                    ) && <Check size={16} />}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p>
+                {selectedWorkout.exercises.map((e) => e.name).join(", ")}
+              </p>
+            )}
+
+            <div className="flex justify-end space-x-4 mt-4">
+              {isEditing ? (
+                <button
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={saveEditedWorkout}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Mentés...
+                    </div>
+                  ) : (
+                    "Mentés"
+                  )}
+                </button>
+              ) : (
+                <button
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <PencilIcon className="w-4 h-4" />
+                  Szerkesztés
+                </button>
+              )}
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={deleteWorkout}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Törlés...
+                  </div>
+                ) : (
+                  <>
                     <TrashIcon className="w-4 h-4" />
                     Törlés
-                  </button>
-                </div>
-              </div>
-            )}
-        </Modal>
-
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -18,7 +18,7 @@ const StartWorkout = () => {
   }
 
   return (
-    <div className="bg-white max-h-[100dvh] flex-1 h-screen overflow-y-auto relative">
+    <div className="bmg-white max-h-[100dvh] flex-1 h-screen overflow-y-auto relative">
       <ToastContainer />
       <Sidebar />
       <StartWorkoutComponent />

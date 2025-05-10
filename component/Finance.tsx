@@ -31,6 +31,8 @@ const Finance: React.FC = () => {
   const [finances, setFinances] = useState<FinanceItem[]>([]);
   const [name, setName] = useState<string>("");
   const [isBlockOpen, setIsBlockOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   const transactionTypeHungarian = {
     [FinanceType.INCOME]: "Bevétel",
@@ -100,6 +102,7 @@ const Finance: React.FC = () => {
 
   useEffect(() => {
     const fetchFinances = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch("/api/finance");
         if (!response.ok) {
@@ -110,6 +113,8 @@ const Finance: React.FC = () => {
         setFinances(data);
       } catch (error) {
         showNotification("Hiba történt az adatok betöltése során", "error");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -117,6 +122,7 @@ const Finance: React.FC = () => {
   }, []);
 
   const deleteFinance = async (id: string) => {
+    setIsDeleting(id);
     try {
       const response = await fetch(`/api/finance?id=${id}`, {
         method: "DELETE",
@@ -131,6 +137,8 @@ const Finance: React.FC = () => {
       showNotification("Sikeresen törölve", "success");
     } catch (error) {
       showNotification("Hiba történt a törlés során", "error");
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -330,8 +338,33 @@ const Finance: React.FC = () => {
       {/* Finances List */}
       <div className="flex-1 overflow-y-auto w-full px-4">
         <div className="max-w-2xl mx-auto py-6 space-y-4">
-          {filteredFinances.length === 0 ? (
-            <p className="text-gray-500 text-center">Nincs találat</p>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <p className="mt-4 text-gray-600">Adatok betöltése...</p>
+            </div>
+          ) : filteredFinances.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
+              <svg
+                className="w-16 h-16 text-gray-400 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <p className="text-xl font-semibold text-gray-700 mb-2">Nincsenek tranzakciók</p>
+              <p className="text-gray-500 text-center max-w-sm">
+                {searchQuery || searchType
+                  ? "Nincs találat a keresési feltételeknek megfelelő tranzakcióra"
+                  : "Még nem adtál hozzá tranzakciókat. Kattints a 'Hozzáadás' gombra az első tranzakció létrehozásához."}
+              </p>
+            </div>
           ) : (
             filteredFinances.map((finance) => (
               <div
@@ -355,22 +388,29 @@ const Finance: React.FC = () => {
                     </span>
                     <button
                       onClick={() => deleteFinance(finance._id)}
-                      className="p-1 text-red-600 hover:text-red-800"
+                      disabled={isDeleting === finance._id}
+                      className={`p-1 text-red-600 hover:text-red-800 ${
+                        isDeleting === finance._id ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                       aria-label="Tranzakció törlése"
                     >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
+                      {isDeleting === finance._id ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
+                      ) : (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      )}
                     </button>
                   </div>
                 </div>

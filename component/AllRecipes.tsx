@@ -24,6 +24,7 @@ const AllRecipes: React.FC = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [portion, setPortion] = useState<number>(1);
   const [isGridView, setIsGridView] = useState<'grid' | 'table'>('grid');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Load view preference from localStorage
@@ -85,10 +86,17 @@ const AllRecipes: React.FC = () => {
 
   useEffect(() => {
     const fetchRecipes = async () => {
-      const response = await fetch('/api/recipes');
-      const data = await response.json();
-      setAllRecipes(data);
-      setRecipes(data);
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/recipes');
+        const data = await response.json();
+        setAllRecipes(data);
+        setRecipes(data);
+      } catch (error) {
+        showNotification('Hiba történt a receptek betöltése során', 'error');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchRecipes();
@@ -147,7 +155,35 @@ const AllRecipes: React.FC = () => {
 
       {/* Scrollable Recipes Container */}
       <div className="flex-1 w-screen overflow-y-auto px-4 md:px-0">
-        {isGridView === 'grid' ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+            <p className="text-gray-600">Receptek betöltése...</p>
+          </div>
+        ) : recipes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <svg
+              className="w-16 h-16 text-gray-400 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Nincsenek receptek</h3>
+            <p className="text-gray-500">
+              {searchName || selectedType
+                ? 'Nincs találat a megadott feltételekre.'
+                : 'Még nincs egyetlen recept sem hozzáadva.'}
+            </p>
+          </div>
+        ) : isGridView === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto py-6">
             {recipes.map((recipe) => (
               <div
@@ -235,12 +271,6 @@ const AllRecipes: React.FC = () => {
               </div>
             ))}
           </div>
-        )}
-
-        {recipes.length === 0 && (
-          <p className="text-gray-500 text-center">
-            Nincs találat a megadott feltételekre.
-          </p>
         )}
       </div>
 
