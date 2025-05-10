@@ -35,10 +35,10 @@ const openai = new OpenAI({
 });
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await getSession({ req });
-  if (!session) {
-      return res.status(401).json({ message: 'Unauthorized' });
-  }
+  // const session = await getSession({ req });
+  // if (!session) {
+  //     return res.status(401).json({ message: 'Unauthorized' });
+  // }
   
   try {
     const { type } = req.body as { type: ExerciseType };

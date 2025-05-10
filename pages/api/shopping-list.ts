@@ -5,11 +5,11 @@ import { getSession } from 'next-auth/react';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
-    const session = await getSession({ req });
+    // const session = await getSession({ req });
     
-    if (!session) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
+    // if (!session) {
+    //     return res.status(401).json({ message: 'Unauthorized' });
+    // }
     
     const client = await connectToDatabase();
     const db = client.db();
