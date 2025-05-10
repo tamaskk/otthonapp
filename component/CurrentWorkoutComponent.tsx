@@ -29,6 +29,7 @@ interface Exercise {
   weight: number | null;
   restTime: number | null;
   note: string | null;
+  video: string | null;
 }
 
 interface Workout {
@@ -301,47 +302,33 @@ const WorkoutStartComponent = () => {
           </button>
         </div>
 
-        <div className="space-y-4 rounded-lg bg-white p-4 shadow-sm">
+        <div className="space-y-4 rounded-lg bg-white p-4 shadow-sm overflow-hidden">
           <h3 className="text-lg font-semibold text-gray-900">
             {currentExercise.name || "Névtelen gyakorlat"}
           </h3>
-          {currentExercise.name && (
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                try {
-                  const link = await searchYouTube(currentExercise.name);
-                  window.open(link, "_blank", "noopener,noreferrer");
-                } catch (error) {
-                  showNotification(
-                    "Hiba történt a YouTube keresés során",
-                    "error"
-                  );
-                  window.open(
-                    getYouTubeSearchLink(currentExercise.name),
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-                }
-              }}
-              className="inline-block text-sm text-blue-600 hover:text-blue-800 underline transition-colors"
-              aria-label={`Keresés: ${currentExercise.name} a YouTube-on`}
-            >
-              YouTube keresés
-            </a>
+          {currentExercise.video && (
+            <div className="flex justify-center">
+              <video 
+                src={currentExercise.video} 
+                controls 
+                autoPlay 
+                muted 
+                loop 
+                className="max-w-full"
+              />
+            </div>
           )}
           {currentExercise.note && (
-            <p className="text-sm text-gray-500">{currentExercise.note}</p>)
-            }
+            <p className="text-sm text-gray-500 break-words">{currentExercise.note}</p>
+          )}
           <div className="space-y-2">
             {exerciseProgress?.sets?.length > 0 ? (
               exerciseProgress.sets.map((set, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 text-sm text-gray-700"
+                  className="flex flex-wrap items-center gap-2 text-sm text-gray-700"
                 >
-                  <span className="w-8 font-medium">{index + 1}. Szett</span>
+                  <span className="w-20 font-medium">{index + 1}. Szett</span>
                   <input
                     type="checkbox"
                     checked={set.completed}
@@ -356,37 +343,41 @@ const WorkoutStartComponent = () => {
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     aria-label={`Szett ${index + 1} befejezése`}
                   />
-                  <input
-                    type="number"
-                    value={set.reps}
-                    onChange={(e) =>
-                      updateSetProgress(
-                        currentExercise._id,
-                        index,
-                        "reps",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
-                    className="w-16 rounded border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
-                    aria-label={`Ismétlések a ${index + 1}. szetthez`}
-                  />
-                  <span>ismétlés</span>
-                  <input
-                    type="number"
-                    value={set.weight}
-                    onChange={(e) =>
-                      updateSetProgress(
-                        currentExercise._id,
-                        index,
-                        "weight",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="w-16 rounded border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
-                    aria-label={`Súly a ${index + 1}. szetthez`}
-                  />
-                  <span>kg</span>
-                  <span className="text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      value={set.reps}
+                      onChange={(e) =>
+                        updateSetProgress(
+                          currentExercise._id,
+                          index,
+                          "reps",
+                          parseInt(e.target.value) || 0
+                        )
+                      }
+                      className="w-16 rounded border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      aria-label={`Ismétlések a ${index + 1}. szetthez`}
+                    />
+                    <span>ism.</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      value={set.weight}
+                      onChange={(e) =>
+                        updateSetProgress(
+                          currentExercise._id,
+                          index,
+                          "weight",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-16 rounded border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      aria-label={`Súly a ${index + 1}. szetthez`}
+                    />
+                    <span>kg</span>
+                  </div>
+                  <span className="text-gray-500 text-xs">
                     ({currentExercise.restTime || 0} mp pihenő)
                   </span>
                 </div>

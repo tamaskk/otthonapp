@@ -197,7 +197,7 @@ const AddWorkoutComponent = () => {
               <h3 className="font-medium">{exercise.name}</h3>
               <p className="text-sm text-gray-600">{exercise.description}</p>
               <p className="text-xs text-gray-500">
-                Types: {exercise.types.map(type => type.charAt(0).toUpperCase() + type.slice(1)).join(", ")}
+                Types: {exercise?.types?.map(type => type.charAt(0).toUpperCase() + type.slice(1)).join(", ")}
               </p>
             </div>
           ))}

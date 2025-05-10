@@ -25,7 +25,7 @@ interface Exercise {
   _id: string;
   name: string;
   description: string;
-  types: ExerciseType[];
+  types: ExerciseType[] | null;
   repetitions: number | null;
   sets: number | null;
   weight: number | null;
@@ -85,9 +85,9 @@ const ExerciseSettingsComponent = () => {
   const toggleExerciseType = (type: ExerciseType) => {
     if (!selectedExercise) return;
   
-    const updatedTypes = selectedExercise.types.includes(type)
-      ? selectedExercise.types.filter((t) => t !== type)
-      : [...selectedExercise.types, type];
+    const updatedTypes = selectedExercise?.types?.includes(type)
+      ? selectedExercise?.types?.filter((t) => t !== type)
+      : [...(selectedExercise?.types || []), type];
   
     setSelectedExercise({
       ...selectedExercise,
@@ -185,8 +185,8 @@ const ExerciseSettingsComponent = () => {
             <h3 className="text-lg font-bold">{exercise.name}</h3>
             <p className="text-sm text-gray-600">{exercise.description}</p>
             <p className="text-sm text-gray-600">
-              {exercise.types
-                .map(
+              {exercise?.types
+                ?.map(
                   (type) =>
                     exerciseTypeOptions.find((opt) => opt.value === type)?.name
                 )
@@ -219,14 +219,14 @@ const ExerciseSettingsComponent = () => {
                       <button
                         key={value}
                         className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm ${
-                          selectedExercise?.types.includes(value)
+                          selectedExercise?.types?.includes(value)
                             ? "bg-blue-600 text-white border-blue-600"
                             : "bg-white text-gray-800 border-gray-300"
                         }`}
                         onClick={() => toggleExerciseType(value)}
                       >
                         {name}
-                        {selectedExercise?.types.includes(value) && (
+                        {selectedExercise?.types?.includes(value) && (
                           <Check size={16} />
                         )}
                       </button>
@@ -321,17 +321,17 @@ const ExerciseSettingsComponent = () => {
                   }}
                 />
 
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-center gap-2">
                   {isEditing ? (
                     <button
-                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                      className="w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                       onClick={saveEditedExercise}
                     >
                       Mentés
                     </button>
                   ) : (
                     <button
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                       onClick={() => setIsEditing(true)}
                     >
                       <PencilIcon className="w-4 h-4" />
@@ -339,14 +339,14 @@ const ExerciseSettingsComponent = () => {
                     </button>
                   )}
                   <button
-                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                     onClick={deleteExercise}
                   >
                     <TrashIcon className="w-4 h-4" />
                     Törlés
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                    className="w-full sm:w-auto px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
                     onClick={() => setModalOpen(false)}
                   >
                     Bezárás
