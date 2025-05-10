@@ -313,6 +313,7 @@ const WorkoutStartComponent = () => {
                 autoPlay 
                 muted 
                 loop 
+                controls
                 className="max-w-full"
               />
             </div>
