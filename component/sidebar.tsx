@@ -66,7 +66,7 @@ const Sidebar = () => {
             <SidebarItems items={[]} mainUrl="/finance" name="Pénzügyek" />
             <SidebarItems items={[]} mainUrl="/home" name="Otthon" />
             <SidebarItems items={[]} mainUrl="/tv-list" name="TV Lista" />
-            <SidebarItems items={[]} mainUrl="/sports" name="Sport" />
+            {/* <SidebarItems items={[]} mainUrl="/sports" name="Sport" /> */}
             <SidebarItems items={[]} mainUrl="/movies" name="Filmek/Sorozatok" />
             <SidebarItems items={[]} mainUrl="/notes" name="Jegyzetek" />
             <SidebarItems items={[]} mainUrl="/passwords" name="Jelszavak" />

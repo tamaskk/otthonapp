@@ -49,7 +49,7 @@ const MainPage = () => {
     { name: 'Pénzügyek', icon: <AccountBalanceWalletIcon />, path: '/finance' },
     { name: 'Otthon', icon: <HomeIcon />, path: '/home' },
     { name: 'TV Lista', icon: <TvIcon />, path: '/tv-list' },
-    { name: 'Sport', icon: <SportsBaseballIcon />, path: '/sports' },
+    // { name: 'Sport', icon: <SportsBaseballIcon />, path: '/sports' },
     { name: 'Filmek / Sorozatok', icon: <MovieIcon />, path: '/movies' },
     { name: 'Jegyzetek', icon: <NoteIcon />, path: '/notes' },
     { name: 'Jelszavak', icon: <VpnKeyIcon />, path: '/passwords' },
