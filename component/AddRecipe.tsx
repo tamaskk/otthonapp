@@ -24,7 +24,23 @@ const AddRecipe: React.FC = () => {
   const [url, setUrl] = useState('');
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [steps, setSteps] = useState<Step[]>([]);
-    const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const [newIngredient, setNewIngredient] = useState<{
+    name: string | null,
+    unit: string | null,
+    amount: string | null
+  }>({
+    name: null,
+    unit: units[0], // Set default unit to first unit
+    amount: null
+  });
+
+  const [newStep, setNewStep] = useState<{
+    description: string | null
+  }>({
+    description: null
+  });
 
   const toggleType = (type: string) => {
     setSelectedTypes(prev =>
@@ -74,12 +90,26 @@ const AddRecipe: React.FC = () => {
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, {
+    if (!newIngredient.name || !newIngredient.amount) {
+      showNotification('Kérlek töltsd ki a hozzávaló nevét és mennyiségét!', 'error');
+      return;
+    }
+
+    const newIngredientItem = {
       id: Math.random().toString(36).substring(2, 9),
+      name: newIngredient.name,
+      amount: newIngredient.amount,
+      unit: newIngredient.unit || units[0]
+    };
+
+    setIngredients(prevIngredients => [...prevIngredients, newIngredientItem]);
+    
+    // Reset form
+    setNewIngredient({
       name: '',
       amount: '',
-      unit: 'db'
-    }]);
+      unit: units[0]
+    });
   };
 
   const updateIngredient = (id: string, field: keyof Ingredient, value: string) => {
@@ -103,10 +133,22 @@ const AddRecipe: React.FC = () => {
   };
 
   const addStep = () => {
-    setSteps([...steps, {
+    if (!newStep.description) {
+      showNotification('Kérlek töltsd ki a lépés leírását!', 'error');
+      return;
+    }
+
+    const newStepItem = {
       id: Math.random().toString(36).substring(2, 9),
+      description: newStep.description
+    };
+
+    setSteps(prevSteps => [...prevSteps, newStepItem]);
+    
+    // Reset form
+    setNewStep({
       description: ''
-    }]);
+    });
   };
 
   const updateStep = (id: string, description: string) => {
@@ -254,49 +296,73 @@ const AddRecipe: React.FC = () => {
           + Hozzávaló hozzáadása
         </button>
       </div>
-      {ingredients.map((ingredient, index) => (
-        <div key={ingredient.id} className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
           <input
             type="text"
-            value={ingredient.name}
-            onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
+            value={newIngredient.name || ''}
+            onChange={(e) => setNewIngredient({
+              ...newIngredient,
+              name: e.target.value
+            })}
             className="flex-1 p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
             placeholder="Hozzávaló neve"
           />
           <input
             type="text"
-            value={ingredient.amount}
-            onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
+            value={newIngredient.amount || ''}
+            onChange={(e) => setNewIngredient({
+              ...newIngredient,
+              amount: e.target.value
+            })}
             className="w-full sm:w-24 p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
             placeholder="Mennyiség"
           />
           <select
-            value={ingredient.unit}
-            onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
+            value={newIngredient.unit || units[0]}
+            onChange={(e) => setNewIngredient({
+              ...newIngredient,
+              unit: e.target.value
+            })}
             className="w-full sm:w-32 p-3 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
           >
+            <option value="">Válassz mértékegységet</option>
             {units.map(unit => (
               <option key={unit} value={unit}>{unit}</option>
             ))}
           </select>
+      </div>
+
+      {ingredients.map((ingredient, index) => (
+        <div key={ingredient.id} className="flex flex-row justify-between sm:flex-row sm:items-center gap-3 mb-4">
+          <div className='flex flex-row gap-4'>
+          <p>
+            {ingredient.name}
+          </p>
+          <p>
+            {ingredient.amount}
+          </p>
+          <p>
+            {ingredient.unit}
+          </p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => moveIngredient(ingredient.id, 'up')}
               disabled={index === 0}
-              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+              className="p-2 w-10 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-black font-black transition text-sm"
             >
               ↑
             </button>
             <button
               onClick={() => moveIngredient(ingredient.id, 'down')}
               disabled={index === ingredients.length - 1}
-              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+              className="p-2 w-10 text-black font-black bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition text-sm"
             >
               ↓
             </button>
             <button
               onClick={() => deleteIngredient(ingredient.id)}
-              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
+              className="p-2 w-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
             >
               ×
             </button>
@@ -316,33 +382,39 @@ const AddRecipe: React.FC = () => {
           + Lépés hozzáadása
         </button>
       </div>
+      <div className='mb-5'>
+        <input 
+          onChange={(value) => setNewStep({
+            description: value.target.value
+          })}
+          value={newStep.description || ''}
+          placeholder='Lépés'
+          className="flex-1 p-3 border w-full border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
+        />
+      </div>
       {steps.map((step, index) => (
-        <div key={step.id} className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-          <input
-            type="text"
-            value={step.description}
-            onChange={(e) => updateStep(step.id, e.target.value)}
-            className="flex-1 p-3 border border-gray-200 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
-            placeholder={`Lépés ${index + 1}`}
-          />
+        <div key={step.id} className="flex flex-row justify-between sm:flex-row sm:items-center gap-3 mb-4">
+          <p>
+            {step.description}
+          </p>
           <div className="flex gap-2">
             <button
               onClick={() => moveStep(step.id, 'up')}
               disabled={index === 0}
-              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+              className="p-2 w-10 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
             >
               ↑
             </button>
             <button
               onClick={() => moveStep(step.id, 'down')}
               disabled={index === steps.length - 1}
-              className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
+              className="p-2 w-10 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 text-gray-700 transition text-sm"
             >
               ↓
             </button>
             <button
               onClick={() => deleteStep(step.id)}
-              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
+              className="p-2 w-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
             >
               ×
             </button>
