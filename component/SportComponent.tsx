@@ -83,15 +83,24 @@ const SportComponent: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://api.sofascore.com/api/v1/sport/football/scheduled-events/${selectedDate}`,
-          {
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        // const response = await fetch(
+        //   `https://api.sofascore.com/api/v1/sport/football/scheduled-events/${selectedDate}`,
+        //   {
+        //     headers: {
+        //       Accept: "application/json",
+        //       "Content-Type": "application/json",
+        //     },
+        //   }
+        // );
+        const response = await fetch('/api/sport', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            date: selectedDate
+          })
+        })
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
