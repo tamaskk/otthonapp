@@ -294,7 +294,7 @@ const ShoppingList = () => {
             defaultView={viewMode}
           />
         </div>
-        <div className="flex flex-col items-center pt-14">
+        <div className="flex flex-col items-center pt-5">
           <h1 className="text-3xl font-bold text-gray-800 mb-5">
             Bevásárló lista
           </h1>
