@@ -19,12 +19,10 @@ const Home = () => {
         <div className="bg-white max-h-[100dvh] flex-1 h-screen overflow-y-auto relative">
       <ToastContainer />
       <Sidebar />
-      <button
-        className="bg-blue-500 text-white font-bold py-2 px-4 rounded absolute top-4 right-4"
-        onClick={handleTurn}
-      >
-        Turn on
-      </button>
+      <div className="flex flex-col items-center justify-center h-full">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Hamarosan</h1>
+        <p className="text-lg text-gray-600 text-center">Keményen dolgozok, hogy valami csodálatosat hozzak létre!</p>
+      </div>
     </div>
   );
 };

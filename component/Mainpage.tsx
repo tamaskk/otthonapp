@@ -12,6 +12,7 @@ import NoteIcon from '@mui/icons-material/Note';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import SettingsIcon from '@mui/icons-material/Settings';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import WcIcon from '@mui/icons-material/Wc';
 
 const MainPage = () => {
   const router = useRouter();
@@ -52,6 +53,7 @@ const MainPage = () => {
     { name: 'Filmek / Sorozatok', icon: <MovieIcon />, path: '/movies' },
     { name: 'Jegyzetek', icon: <NoteIcon />, path: '/notes' },
     { name: 'Jelszavak', icon: <VpnKeyIcon />, path: '/passwords' },
+    { name: 'WC Kódok', icon: <WcIcon />, path: '/wc-codes' },
     { name: 'Beállítások', icon: <SettingsIcon />, path: '/settings' }
   ];
 

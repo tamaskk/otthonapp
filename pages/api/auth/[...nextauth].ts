@@ -9,7 +9,13 @@ declare module "next-auth" {
     user: {
       id: string;
       email: string;
+      username: string;
     }
+  }
+  interface User {
+    id: string;
+    email: string;
+    username: string;
   }
 }
 
@@ -53,6 +59,7 @@ export const authOptions: AuthOptions = {
         return {
           id: user._id.toString(),
           email: user.email,
+          username: user.username,
         };
       },
     }),
@@ -62,6 +69,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.username = user.username;
       }
       return token;
     },
@@ -70,6 +78,7 @@ export const authOptions: AuthOptions = {
         session.user = {
           email: token.email as string,
           id: token.id as string,
+          username: token.username as string,
         };
       }
       return session;
