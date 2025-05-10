@@ -310,7 +310,6 @@ const WorkoutStartComponent = () => {
             <div className="flex justify-center">
               <video 
                 src={currentExercise.video} 
-                controls 
                 autoPlay 
                 muted 
                 loop 
