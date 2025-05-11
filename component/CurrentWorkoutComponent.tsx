@@ -158,7 +158,7 @@ const WorkoutStartComponent = () => {
     exerciseId: string,
     setIndex: number,
     field: "completed" | "reps" | "weight",
-    value: boolean | number
+    value: boolean | number | string
   ) => {
     setProgress((prev) => {
       if (!prev) return prev;
@@ -399,7 +399,7 @@ const WorkoutStartComponent = () => {
                   <div className="flex items-center gap-1">
                     <input
                       type="number"
-                      value={set.reps || 0}
+                      value={set.reps || ''}
                       onChange={(e) =>
                         updateSetProgress(
                           currentExercise._id,
@@ -416,7 +416,7 @@ const WorkoutStartComponent = () => {
                   <div className="flex items-center gap-1">
                     <input
                       type="number"
-                      value={set.weight || 0}
+                      value={set.weight || ''}
                       onChange={(e) =>
                         updateSetProgress(
                           currentExercise._id,
