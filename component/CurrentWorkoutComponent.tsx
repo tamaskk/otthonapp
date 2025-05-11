@@ -46,7 +46,7 @@ interface WorkoutProgress {
   currentExerciseIndex: number;
   exerciseProgress: {
     [exerciseId: string]: {
-      sets: { completed: boolean; reps: number; weight: number }[];
+      sets: { completed: boolean; reps: number | null; weight: number | null }[];
     };
   };
 }
@@ -399,7 +399,7 @@ const WorkoutStartComponent = () => {
                   <div className="flex items-center gap-1">
                     <input
                       type="number"
-                      value={set.reps}
+                      value={set.reps || 0}
                       onChange={(e) =>
                         updateSetProgress(
                           currentExercise._id,
@@ -416,7 +416,7 @@ const WorkoutStartComponent = () => {
                   <div className="flex items-center gap-1">
                     <input
                       type="number"
-                      value={set.weight}
+                      value={set.weight || 0}
                       onChange={(e) =>
                         updateSetProgress(
                           currentExercise._id,
