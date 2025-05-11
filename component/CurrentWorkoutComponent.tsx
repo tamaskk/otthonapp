@@ -46,7 +46,11 @@ interface WorkoutProgress {
   currentExerciseIndex: number;
   exerciseProgress: {
     [exerciseId: string]: {
-      sets: { completed: boolean; reps: number | null; weight: number | null }[];
+      sets: {
+        completed: boolean;
+        reps: number | null;
+        weight: number | null;
+      }[];
     };
   };
 }
@@ -57,6 +61,8 @@ const WorkoutStartComponent = () => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [editedExercise, setEditedExercise] = useState<Exercise | null>(null);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
   const router = useRouter();
   const { workoutId } = router.query;
 
@@ -114,24 +120,21 @@ const WorkoutStartComponent = () => {
       _id: workout._id,
       startTime: new Date().toISOString(),
       currentExerciseIndex: 0,
-      exerciseProgress: workout.exercises.reduce(
-        (acc, exercise) => {
-          console.log("Processing exercise:", exercise);
-          return {
-            ...acc,
-            [exercise._id]: {
-              sets: Array(exercise.sets || 1)
-                .fill(null)
-                .map(() => ({
-                  completed: false,
-                  reps: exercise.repetitions || 0,
-                  weight: exercise.weight || 0,
-                })),
-            },
-          };
-        },
-        {}
-      ),
+      exerciseProgress: workout.exercises.reduce((acc, exercise) => {
+        console.log("Processing exercise:", exercise);
+        return {
+          ...acc,
+          [exercise._id]: {
+            sets: Array(exercise.sets || 1)
+              .fill(null)
+              .map(() => ({
+                completed: false,
+                reps: exercise.repetitions || 0,
+                weight: exercise.weight || 0,
+              })),
+          },
+        };
+      }, {}),
     };
     setProgress(initialProgress);
     setStartTime(new Date());
@@ -185,7 +188,8 @@ const WorkoutStartComponent = () => {
       updatedProgress.exerciseProgress[exerciseId].sets.push({
         completed: false,
         reps: updatedProgress.exerciseProgress[exerciseId].sets[0]?.reps || 0,
-        weight: updatedProgress.exerciseProgress[exerciseId].sets[0]?.weight || 0,
+        weight:
+          updatedProgress.exerciseProgress[exerciseId].sets[0]?.weight || 0,
       });
       console.log("Added set, new progress:", updatedProgress);
       return updatedProgress;
@@ -193,6 +197,7 @@ const WorkoutStartComponent = () => {
   };
 
   const nextExercise = () => {
+    setEditedExercise(null);
     if (!workout || !progress) return;
     if (currentExerciseIndex < workout.exercises.length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1);
@@ -205,6 +210,7 @@ const WorkoutStartComponent = () => {
   };
 
   const prevExercise = () => {
+    setEditedExercise(null);
     if (currentExerciseIndex > 0) {
       setCurrentExerciseIndex(currentExerciseIndex - 1);
       setProgress((prev) =>
@@ -238,81 +244,76 @@ const WorkoutStartComponent = () => {
       setProgress(null);
       router.push("/start-workout");
     } catch (error) {
-        console.error("Error saving workout:", error);
+      console.error("Error saving workout:", error);
       showNotification("Hiba történt az edzés mentésekor", "error");
     }
   };
 
-  // const saveEditedExercise = async () => {
-  //   if (!selectedExercise) return;
-
-  //   const editedExercise = {
-  //     name: selectedExercise.name,
-  //     description: selectedExercise.description,
-  //     types: selectedExercise.types,
-  //     repetitions: selectedExercise.repetitions,
-  //     sets: selectedExercise.sets,
-  //     weight: selectedExercise.weight,
-  //     restTime: selectedExercise.restTime,
-  //   };
-
-  //   const response = await fetch(`/api/exercise?id=${selectedExercise._id}`, {
-  //     method: "PATCH",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ exercise: editedExercise }),
-  //   });
-
-  //   if (!response.ok) {
-  //     showNotification('Hiba történt a gyakorlat mentésekor', 'error');
-  //     return;
-  //   }
-
-  //   const data = await response.json();
-
-  //   if (!data) {
-  //     showNotification('Hiba történt a gyakorlat mentésekor', 'error');
-  //     return;
-  //   }
-
-  //   showNotification('Gyakorlat mentve', 'success');
-
-  //   setExercises((prev) =>
-  //     prev.map((e) =>
-  //       e.name === selectedExercise?.name ? selectedExercise! : e
-  //     )
-  //   );
-  //   setModalOpen(false);
-  // };
-
   const updateExercise = async (exerciseId: string) => {
+    if (!workout || !editedExercise) return;
 
-    const updatedExercise = {
-      name: workout?.exercises[currentExerciseIndex].name,
-      description: workout?.exercises[currentExerciseIndex].description,
-      types: workout?.exercises[currentExerciseIndex].types,
-      repetitions: workout?.exercises[currentExerciseIndex].repetitions,
-      sets: workout?.exercises[currentExerciseIndex].sets,
-      weight: workout?.exercises[currentExerciseIndex].weight,
-      restTime: workout?.exercises[currentExerciseIndex].restTime,
+    const updatedExercise: Exercise = {
+      _id: exerciseId,
+      name: editedExercise.name,
+      description: editedExercise.description,
+      types: editedExercise.types,
+      repetitions: editedExercise.repetitions,
+      sets: editedExercise.sets,
+      weight: editedExercise.weight,
+      restTime: editedExercise.restTime,
+      note: editedExercise.note,
+      video: editedExercise.video
     };
 
-    const response = await fetch(`/api/exercise?id=${exerciseId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ exercise: updatedExercise }),
-    });
-    const data = await response.json();
+    try {
+      const response = await fetch(`/api/exercise?id=${exerciseId}&workoutId=${workoutId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ exercise: updatedExercise }),
+      });
 
-    if (!data) {
+      if (!response.ok) {
+        throw new Error("Failed to update exercise");
+      }
+
+      const data = await response.json();
+      if (!data) {
+        throw new Error("No data returned");
+      }
+
+      setEditedExercise(null);
+      showNotification("Gyakorlat frissítve", "success");
+
+      // Update workout state with new exercise data
+      const updatedWorkout: Workout = {
+        ...workout,
+        exercises: workout.exercises.map((exercise) =>
+          exercise._id === exerciseId ? updatedExercise : exercise
+        )
+      };
+      setWorkout(updatedWorkout);
+
+      // Update progress state with new exercise parameters
+      setProgress((prev) => {
+        if (!prev) return prev;
+        const updatedProgress = { ...prev };
+        updatedProgress.exerciseProgress[exerciseId] = {
+          sets: Array(updatedExercise.sets || 1).fill(null).map(() => ({
+            completed: false,
+            reps: updatedExercise.repetitions || 0,
+            weight: updatedExercise.weight || 0
+          }))
+        };
+        localStorage.setItem("workoutProgress", JSON.stringify(updatedProgress));
+        return updatedProgress;
+      });
+
+    } catch (error) {
+      console.error("Error updating exercise:", error);
       showNotification("Hiba történt a gyakorlat frissítésekor", "error");
-      return;
     }
-
-    showNotification("Gyakorlat frissítve", "success");
   };
 
   const formatTime = (seconds: number) => {
@@ -359,20 +360,40 @@ const WorkoutStartComponent = () => {
           <h3 className="text-lg font-semibold text-gray-900">
             {currentExercise.name || "Névtelen gyakorlat"}
           </h3>
-          {currentExercise.video && (
-            <div className="flex justify-center">
-              <video 
-                src={currentExercise.video} 
+          {currentExercise.video ? (
+            <div className="flex justify-center relative">
+              {isVideoLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                </div>
+              )}
+              <video
+                src={currentExercise.video}
                 playsInline
                 autoPlay
                 muted
                 loop
                 className="max-w-full"
+                onLoadStart={() => setIsVideoLoading(true)}
+                onLoadedData={() => setIsVideoLoading(false)}
               />
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <a 
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(currentExercise.name + ' exercise')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Keresés YouTube-on
+              </a>
             </div>
           )}
           {currentExercise.note && (
-            <p className="text-sm text-gray-500 break-words">{currentExercise.note}</p>
+            <p className="text-sm text-gray-500 break-words">
+              {currentExercise.note}
+            </p>
           )}
           <div className="space-y-5 flex flex-col ">
             {exerciseProgress?.sets?.length > 0 ? (
@@ -399,7 +420,7 @@ const WorkoutStartComponent = () => {
                   <div className="flex items-center gap-1">
                     <input
                       type="number"
-                      value={set.reps || ''}
+                      value={set.reps || ""}
                       onChange={(e) =>
                         updateSetProgress(
                           currentExercise._id,
@@ -416,7 +437,7 @@ const WorkoutStartComponent = () => {
                   <div className="flex items-center gap-1">
                     <input
                       type="number"
-                      value={set.weight || ''}
+                      value={set.weight || ""}
                       onChange={(e) =>
                         updateSetProgress(
                           currentExercise._id,
@@ -442,12 +463,90 @@ const WorkoutStartComponent = () => {
                 {JSON.stringify(exerciseProgress)})
               </div>
             )}
-            <button 
-              onClick={() => updateExercise(currentExercise._id)}
-              className="bg-blue-500 self-end text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Feladat frissítése
-            </button>
+            {!editedExercise && (
+              <button
+                onClick={() => setEditedExercise(currentExercise)}
+                className="bg-blue-500 self-end text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Frissítés
+              </button>
+            )}
+            {editedExercise && (
+              <div>
+                <div className="flex flex-row gap-2">
+                  <div className="flex flex-col gap-2 w-[23%]">
+                    <span>Sorozat</span>
+                    <input
+                      type="number"
+                      value={editedExercise.sets || ""}
+                      onChange={(e) =>
+                        setEditedExercise({
+                          ...editedExercise,
+                          sets: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 w-[23%]">
+                    <span>Ismétlések</span>
+                    <input
+                      type="number"
+                      value={editedExercise.repetitions || ""}
+                      onChange={(e) =>
+                        setEditedExercise({
+                          ...editedExercise,
+                          repetitions: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 w-[23%]">
+                    <span>Súly</span>
+                    <input
+                      type="number"
+                      value={editedExercise.weight || ""}
+                      onChange={(e) =>
+                        setEditedExercise({
+                          ...editedExercise,
+                          weight: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 w-[23%]">
+                    <span>Pihenő idő</span>
+                    <input
+                      type="number"
+                      value={editedExercise.restTime || ""}
+                      onChange={(e) =>
+                        setEditedExercise({
+                          ...editedExercise,
+                          restTime: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between gap-2">
+                  <button
+                    onClick={() => setEditedExercise(null)}
+                    className="bg-red-500 mt-2 self-end text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    Mégsem
+                  </button>
+                  <button
+                    onClick={() => updateExercise(currentExercise._id)}
+                    className="bg-blue-500 mt-2 self-end text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    Feladat frissítése
+                </button>
+                  </div>
+              </div>
+            )}
           </div>
         </div>
 

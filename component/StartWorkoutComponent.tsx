@@ -102,7 +102,7 @@ const WorkoutListComponent = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto text-black">
+    <div className="p-4 max-w-4xl mx-auto text-black bg-white min-h-[100dvh]">
       <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
         Edzések indítása
       </h1>
