@@ -133,7 +133,6 @@ const WorkoutStartComponent = () => {
         {}
       ),
     };
-    console.log("Initialized progress:", initialProgress);
     setProgress(initialProgress);
     setStartTime(new Date());
     setCurrentExerciseIndex(0);
@@ -151,22 +150,9 @@ const WorkoutStartComponent = () => {
 
   useEffect(() => {
     if (progress) {
-      console.log("Saving progress to localStorage:", progress);
       localStorage.setItem("workoutProgress", JSON.stringify(progress));
     }
   }, [progress]);
-
-  const searchYouTube = async (exerciseName: string) => {
-    const query = encodeURIComponent(`${exerciseName} exercise tutorial`);
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&key=YOUR_YOUTUBE_API_KEY`
-    );
-    const data = await response.json();
-    if (data.items?.[0]?.id?.videoId) {
-      return `https://www.youtube.com/watch?v=${data.items[0].id.videoId}`;
-    }
-    throw new Error("No YouTube video found");
-  };
 
   const updateSetProgress = (
     exerciseId: string,
@@ -257,6 +243,78 @@ const WorkoutStartComponent = () => {
     }
   };
 
+  // const saveEditedExercise = async () => {
+  //   if (!selectedExercise) return;
+
+  //   const editedExercise = {
+  //     name: selectedExercise.name,
+  //     description: selectedExercise.description,
+  //     types: selectedExercise.types,
+  //     repetitions: selectedExercise.repetitions,
+  //     sets: selectedExercise.sets,
+  //     weight: selectedExercise.weight,
+  //     restTime: selectedExercise.restTime,
+  //   };
+
+  //   const response = await fetch(`/api/exercise?id=${selectedExercise._id}`, {
+  //     method: "PATCH",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ exercise: editedExercise }),
+  //   });
+
+  //   if (!response.ok) {
+  //     showNotification('Hiba történt a gyakorlat mentésekor', 'error');
+  //     return;
+  //   }
+
+  //   const data = await response.json();
+
+  //   if (!data) {
+  //     showNotification('Hiba történt a gyakorlat mentésekor', 'error');
+  //     return;
+  //   }
+
+  //   showNotification('Gyakorlat mentve', 'success');
+
+  //   setExercises((prev) =>
+  //     prev.map((e) =>
+  //       e.name === selectedExercise?.name ? selectedExercise! : e
+  //     )
+  //   );
+  //   setModalOpen(false);
+  // };
+
+  const updateExercise = async (exerciseId: string) => {
+
+    const updatedExercise = {
+      name: workout?.exercises[currentExerciseIndex].name,
+      description: workout?.exercises[currentExerciseIndex].description,
+      types: workout?.exercises[currentExerciseIndex].types,
+      repetitions: workout?.exercises[currentExerciseIndex].repetitions,
+      sets: workout?.exercises[currentExerciseIndex].sets,
+      weight: workout?.exercises[currentExerciseIndex].weight,
+      restTime: workout?.exercises[currentExerciseIndex].restTime,
+    };
+
+    const response = await fetch(`/api/exercise?id=${exerciseId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ exercise: updatedExercise }),
+    });
+    const data = await response.json();
+
+    if (!data) {
+      showNotification("Hiba történt a gyakorlat frissítésekor", "error");
+      return;
+    }
+
+    showNotification("Gyakorlat frissítve", "success");
+  };
+
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -264,11 +322,6 @@ const WorkoutStartComponent = () => {
     return `${h.toString().padStart(2, "0")}:${m
       .toString()
       .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  };
-
-  const getYouTubeSearchLink = (exerciseName: string) => {
-    const query = encodeURIComponent(`${exerciseName} exercise tutorial`);
-    return `https://www.youtube.com/results?search_query=${query}`;
   };
 
   if (!workout || !progress) {
@@ -321,14 +374,14 @@ const WorkoutStartComponent = () => {
           {currentExercise.note && (
             <p className="text-sm text-gray-500 break-words">{currentExercise.note}</p>
           )}
-          <div className="space-y-2">
+          <div className="space-y-5 flex flex-col ">
             {exerciseProgress?.sets?.length > 0 ? (
               exerciseProgress.sets.map((set, index) => (
                 <div
                   key={index}
-                  className="flex flex-wrap items-center gap-2 text-sm text-gray-700"
+                  className="flex flex-wrap items-center gap-1 text-sm text-gray-700"
                 >
-                  <span className="w-20 font-medium">{index + 1}. Szett</span>
+                  <span className="w-14 font-medium">{index + 1}. Szett</span>
                   <input
                     type="checkbox"
                     checked={set.completed}
@@ -340,7 +393,7 @@ const WorkoutStartComponent = () => {
                         e.target.checked
                       )
                     }
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 mr-7 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     aria-label={`Szett ${index + 1} befejezése`}
                   />
                   <div className="flex items-center gap-1">
@@ -355,7 +408,7 @@ const WorkoutStartComponent = () => {
                           parseInt(e.target.value) || 0
                         )
                       }
-                      className="w-16 rounded border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="w-16 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
                       aria-label={`Ismétlések a ${index + 1}. szetthez`}
                     />
                     <span>ism.</span>
@@ -372,7 +425,7 @@ const WorkoutStartComponent = () => {
                           parseFloat(e.target.value) || 0
                         )
                       }
-                      className="w-16 rounded border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="w-16 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-blue-500"
                       aria-label={`Súly a ${index + 1}. szetthez`}
                     />
                     <span>kg</span>
@@ -389,6 +442,12 @@ const WorkoutStartComponent = () => {
                 {JSON.stringify(exerciseProgress)})
               </div>
             )}
+            <button 
+              onClick={() => updateExercise(currentExercise._id)}
+              className="bg-blue-500 self-end text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Feladat frissítése
+            </button>
           </div>
         </div>
 
