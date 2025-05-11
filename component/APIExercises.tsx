@@ -240,10 +240,12 @@ const APIExercisesComponent = () => {
                   <div className="aspect-w-16 aspect-h-9">
                     <video
                       src={exercise.branded_video}
+                      // controls
+                      playsInline
                       autoPlay
                       muted
                       loop
-                      controls
+                      preload="metadata"
                     />
                   </div>
                 )}
